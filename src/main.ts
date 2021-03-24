@@ -8,8 +8,6 @@ declare const module: any;
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // app.use(this.createConnection);
-
   if (process.env.NODE_ENV === 'production') {
     const bot = app.get(getBotToken());
     app.use(bot.webhookCallback(`https://${process.env.TELEGRAM_HOST}/${process.env.TELEGRAM_TOKEN}`));

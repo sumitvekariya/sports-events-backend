@@ -17,7 +17,6 @@ export class RethinkService {
      * @returns Creation status promise
      */
     async createTable(tableName:string): Promise<rethinkDB.CreateResult> {
-        console.log('uuid')
         let result = await rethinkDB.db('test').tableCreate(tableName).run(this.connection);
         return result
     }
@@ -34,13 +33,34 @@ export class RethinkService {
             .run(this.connection)
             .then(cursor => {
                 cursor.toArray(function(err, res) {
-                if (err) throw err;
+                    if (err) throw err;
                     result = res;
                 });
             }).catch(err => {
                 this.logger.error(`Some error fetching ${tableName} from DB`, err);
             });
         return result
+    }
+
+    async saveDB(tableName, data) {
+        await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+        .table(tableName)
+        .insert(data)
+        .run(this.connection)
+        .catch(err => {
+            this.logger.error(`Some error when adding ${data} to table ${tableName} in DB`, err);
+        });
+    }
+
+    async updateDB(tableName, uuid, data) {
+        await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .get(uuid)
+            .update(data)
+            .run(this.connection)
+            .catch(err => {
+                this.logger.error(`Some error when updating ${data} to table ${tableName} in DB`, err);
+            });
     }
 
 }

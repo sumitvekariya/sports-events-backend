@@ -14,8 +14,6 @@ export const getBackKeyboard = (ctx: ContextMessageUpdate) => {
     [backKeyboardBack]
   ]);
 
-  backKeyboard = backKeyboard.resize().extra();
-
   return {
     backKeyboard,
     backKeyboardBack,
@@ -28,15 +26,27 @@ export const getBackKeyboard = (ctx: ContextMessageUpdate) => {
  * @param ctx - telegram context
  */
 export const getMainKeyboard = (ctx: ContextMessageUpdate) => {
+  const mainKeyboardAddEvent = ctx.i18n.t('keyboards.main_keyboard.add_event');
   const mainKeyboardEvents = ctx.i18n.t('keyboards.main_keyboard.events');
+  // const mainKeyboardFields = ctx.i18n.t('keyboards.main_keyboard.fields');
+  const mainKeyboardAbout = ctx.i18n.t('keyboards.main_keyboard.about');
+  const mainKeyboardSupport = ctx.i18n.t('keyboards.main_keyboard.support');
+  // const mainKeyboardProfile = ctx.i18n.t('keyboards.main_keyboard.profile');
   
   let mainKeyboard: any = Markup.keyboard([
-    [mainKeyboardEvents]
+    [mainKeyboardAddEvent, mainKeyboardEvents] as any,
+    [mainKeyboardSupport, mainKeyboardAbout]
+    // [mainKeyboardFields, mainKeyboardAbout],
+    // [mainKeyboardSupport, mainKeyboardProfile]
   ]);
-  mainKeyboard = mainKeyboard.resize();
 
   return {
     mainKeyboard,
-    mainKeyboardEvents
+    mainKeyboardAddEvent,
+    mainKeyboardEvents,
+    // mainKeyboardFields,
+    mainKeyboardSupport,
+    mainKeyboardAbout
+    // mainKeyboardProfile
   };
 };

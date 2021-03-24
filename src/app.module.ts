@@ -6,7 +6,7 @@ import { RethinkModule } from './rethink-db/rethink.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { HobbytsBotModule } from './hobbyts-bot/hobbyts-bot.module';
-import configuration from './config/configuration';
+import configuration from './constants/config/configuration';
 
 
 @Module({

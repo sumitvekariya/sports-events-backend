@@ -1,3 +1,29 @@
+## How To Use NestJS:
+<a href="https://github.com/hantsy/nestjs-sample">NestJS seed (REST, Mongo, JWT, Registration, model relations, test)</a>
+<a href="https://dev.to/rubiin/awesome-nestjs-4pm7">NestJS resources list</a>
+
+## How To Use RethinkDB:
+<a href="https://rethinkdb.com/docs">Rethink docs</a>
+<a href="https://github.com/mtenrero/nestJS-RethinkDB-TS_example/blob/master/src/rethink/rethink.service.ts">NestJS + RethinkDB seed</a>
+
+## How To Use Telegraf:
+<a href="https://github.com/telegraf/telegraf">Telegraf</a>
+<a href="https://nestjs-telegraf.vercel.app/docs/telegraf-methods">Telegraf Docs</a>
+<a href="https://telegraf.js.org/modules.html">Telegraf API</a>
+<a href="https://github.com/bukhalo/nestjs-telegraf/blob/master/website/docs/extras/bot-injection.md">How to use Telegraf in Web Components</a>
+<a href="https://openbase.com/js/telegraf-i18n">Telegraf I18n</a>
+<a href="https://habr.com/ru/post/483194/">Telegraf football gather bot example</a>
+<p>Telegraf tutorials:</p>
+- <a href="https://www.youtube.com/watch?v=uxntZlV5nKQ">Context, session, updates</a>
+- <a href="https://www.youtube.com/watch?v=GXfFJKhibx0">Scenes, Stages</a>
+- <a href="https://www.youtube.com/watch?v=iFX8A2MhLes">Scenes, dialog</a>
+- <a href="https://www.youtube.com/watch?v=ldhnldKq5Kk">Albom creation chat bot</a>
+
+## How To Use GraphQL:
+<a href="https://telegraf.js.org/modules.html">Telegraf API</a>
+
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
 </p>
