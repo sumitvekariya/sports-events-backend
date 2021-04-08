@@ -1,9 +1,9 @@
 export interface IContact {
-  phones?: Phone[];
+  phones?: IPhone[];
   emails?: string[];
 }
 
-interface Phone {
+export interface IPhone {
   ext: string;
   number: string;
   label?: string;

@@ -49,7 +49,6 @@ export class CoreBotUpdate {
 
   @Hears(match('keyboards.main_keyboard.add_event'))
   async hearsAddEvent(@Ctx() ctx: ContextMessageUpdate) {
-    this.updateUserTimestamp(ctx);
     asyncWrapper(async (ctx: ContextMessageUpdate) => await ctx.scene.enter('newEvent'), ctx, this.logger);
   };
 
@@ -124,22 +123,4 @@ export class CoreBotUpdate {
   // async on(@Ctx() ctx: ContextMessageUpdate) {
   //   ctx.i18n.locale('ua');
   // }
-
-  private updateUserTimestamp = async (ctx: ContextMessageUpdate) => {
-    const uuid = ctx.from.id;
-    const time = Number(new Date());
-    if (this.updateMap.size > 10000) {
-      this.updateMap.clear();
-    }
-    if (!this.updateMap.get(uuid)) {
-      this.updateMap.set(uuid, time);
-    }
-    if ((time - this.updateMap.get(uuid)) > 60000) {
-      this.rethinkService.updateDB('users', uuid, {
-        lastTelegramActivityAt: time
-      }).then(() => {
-        this.updateMap.delete(uuid);
-      }).catch(err => this.logger.error('Update user timestamp error', err));
-    }
-  };
 }

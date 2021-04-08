@@ -86,8 +86,7 @@ export class NewEventScene {
             id: messageId,
             text: res.text,
             chatId: res.chat.id,
-            messageId: res.message_id,
-            reply_markup: res.reply_markup
+            messageId: res.message_id
         });
     });
 

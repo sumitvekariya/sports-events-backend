@@ -2,7 +2,8 @@ import { IContact } from "src/constants/interface/contact";
 import { IUser } from "src/constants/interface/user";
 
 export default class User implements IUser {
-  public id: number;
+  public id: string;
+  public telegramId: number;
   public nickName: string;
   public firstName: string;
   public lastName: string;
@@ -12,10 +13,11 @@ export default class User implements IUser {
   public sex: boolean;
   public archived: boolean;
   public createdAt: number;
-  public lastTelegramActivityAt: number;
+  public lastActivityAt: number;
 
   constructor(user: IUser) {
     this.id = user.id || null;
+    this.telegramId = user.telegramId || null;
     this.nickName = user.nickName || null;
     this.firstName = user.firstName || null;
     this.lastName = user.lastName || null;
@@ -25,7 +27,7 @@ export default class User implements IUser {
     this.sex = user.sex || null;
     this.archived = user.archived || false;
     this.createdAt = user.createdAt;
-    this.lastTelegramActivityAt = user.lastTelegramActivityAt;
+    this.lastActivityAt = user.lastActivityAt;
   }
 
   getFullName() {

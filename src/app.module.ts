@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { RethinkModule } from './rethink-db/rethink.module';
-import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { HobbytsBotModule } from './hobbyts-bot/hobbyts-bot.module';
+import { PostModule } from './post/post.module';
+import { UserModule } from './user/user.module';
 import configuration from './constants/config/configuration';
 
 
@@ -19,10 +18,9 @@ import configuration from './constants/config/configuration';
     GraphQLModule.forRoot({
       autoSchemaFile: true,
     }),
-    UsersModule,
-    HobbytsBotModule
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    HobbytsBotModule,
+    UserModule,
+    PostModule
+  ]
 })
 export class AppModule {}

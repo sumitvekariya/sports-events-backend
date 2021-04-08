@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { getBotToken } from 'nestjs-telegraf';
 import { AppModule } from './app.module';
-import * as rethinkDB from 'rethinkdb';
+import { ValidationPipe } from '@nestjs/common';
 
 declare const module: any;
 
@@ -12,7 +12,7 @@ async function bootstrap() {
     const bot = app.get(getBotToken());
     app.use(bot.webhookCallback(`https://${process.env.TELEGRAM_HOST}/${process.env.TELEGRAM_TOKEN}`));
   }
-
+  app.useGlobalPipes(new ValidationPipe())
   app.enableCors();
   await app.listen(parseInt(process.env.PORT));
 

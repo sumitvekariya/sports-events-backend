@@ -8,7 +8,7 @@ export const teamEditAction = async (ctx: ContextMessageUpdate, adding: boolean,
     let newText;
     let idArray = [];
     const messageData = JSON.parse((ctx.callbackQuery as any).data);
-    rethink.getDB('postMessages', { id: messageData.t }).then(async res => {
+    rethink.getDB('postMessages', { telegramId: messageData.t }).then(async res => {
         let text = res[0].text;
         const index = text.indexOf('.\nУсі деталі сюди');
         let repl;
@@ -60,8 +60,7 @@ export const teamEditAction = async (ctx: ContextMessageUpdate, adding: boolean,
               idArray: idArray,
               text: newText,
               chatId: res.chat.id,
-              messageId: res.message_id,
-              reply_markup: res.reply_markup
+              messageId: res.message_id
             });
         });
     });

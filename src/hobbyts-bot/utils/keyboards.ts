@@ -12,7 +12,7 @@ export const getBackKeyboard = (ctx: ContextMessageUpdate) => {
   // ]);
   let backKeyboard: any = Markup.keyboard([
     [backKeyboardBack]
-  ]);
+  ]).resize();
 
   return {
     backKeyboard,
@@ -36,9 +36,8 @@ export const getMainKeyboard = (ctx: ContextMessageUpdate) => {
   let mainKeyboard: any = Markup.keyboard([
     [mainKeyboardAddEvent, mainKeyboardEvents] as any,
     [mainKeyboardSupport, mainKeyboardAbout]
-    // [mainKeyboardFields, mainKeyboardAbout],
-    // [mainKeyboardSupport, mainKeyboardProfile]
-  ]);
+    // [mainKeyboardFields, mainKeyboardProfile]
+  ]).resize();
 
   return {
     mainKeyboard,

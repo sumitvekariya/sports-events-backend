@@ -43,7 +43,7 @@ export async function getAnswerTypeMenu(ctx: ContextMessageUpdate, rethink: Reth
   if (ctx.scene.state.groups) {
       groups = ctx.scene.state.groups;
   } else {
-      await rethink.getDB('persistData', {id: ctx.from.id})
+      await rethink.getDB('persistData', {telegramId: ctx.from.id})
       .then(result => {
         const resGr = result[0].groups;
         if (resGr) {

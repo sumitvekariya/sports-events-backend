@@ -10,18 +10,16 @@ export interface Roles {
 
 export interface IUser {
   archived?: boolean;
-  id?: number;
+  id?: string;
+  telegramId?: number;
   email?: string;
   displayName?: string;
   photoURL?: string;
-  emailVerified?: boolean;
+  accountVerified?: boolean;
   providerId?: string;
   validSince?: number;
-  lastLoginAt?: number;
-  lastTelegramActivityAt?: number;
   createdAt?: number;
-  updatedAt?: number;
-  avatar?: string;
+  lastActivityAt?: number;
   firstName?: string;
   lastName?: string;
   nickName?: string;
