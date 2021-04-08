@@ -1,12 +1,18 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UpdateUserInput } from './dto/update-user.input';
 import { CreateUserInput } from './dto/create-user.input';
+import { AuthRegisterInput } from './dto/auth-register.input';
+import { AuthLoginInput } from './dto/auth-login.input';
+import { UserTokenType } from './user-token.type';
+import { JwtService } from '@nestjs/jwt';
+import { AuthHelper } from './auth.helper';
+import { JwtDto } from './dto/jwt.dto';
 
 @Injectable()
 export class UserService {
     private rethinkService;
 
-    constructor(@Inject('RethinkService') service) {
+    constructor(@Inject('RethinkService') service, private jwtService: JwtService) {
         this.rethinkService = service;
     }
 
@@ -16,6 +22,48 @@ export class UserService {
     }
 
     async getOne(id: string) {
+        const result = await this.rethinkService.getByID('users', id);
+        return result;
+    }
+
+    async login(authLoginInput: AuthLoginInput) {
+        const found = await this.rethinkService.getDB('users', { telegramId: authLoginInput.telegramId });
+        if (!found.length) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+        if (authLoginInput.password) {
+            const passwordValid = await AuthHelper.validate(authLoginInput.password, found[0].password);
+
+            if (!passwordValid) {
+                throw new UnauthorizedException('Invalid credentials');
+            }
+        }
+        const payload: JwtDto = { id: found.id }
+        return {
+            user: found[0],
+            token: this.jwtService.sign(payload)
+        }
+    }
+
+    async register(authRegisterInput: AuthRegisterInput): Promise<UserTokenType> {
+        const found = await this.rethinkService.getDB('users', { telegramId: authRegisterInput.telegramId });
+        if (found.length > 0) {
+            throw new BadRequestException(`Cannot register with telegramId ${authRegisterInput.telegramId}`)
+        }
+        if (authRegisterInput.password) {
+            authRegisterInput.password = await AuthHelper.hash(authRegisterInput.password);
+        }
+
+        const createUser = await this.create(authRegisterInput);
+
+        return {
+            user: createUser,
+            token: this.jwtService.sign({ id: createUser.id })
+        }
+    }
+
+    async validateUser(id: string) {
+        // Check here if JWT not expired???
         const result = await this.rethinkService.getByID('users', id);
         return result;
     }

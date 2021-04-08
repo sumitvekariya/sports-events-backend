@@ -3,8 +3,11 @@ import { CreatePostInput } from './dto/create-post.input';
 import { PostType } from "./post.type";
 import { PostService } from './post.service';
 import { UpdatePostInput } from './dto/update-post.input';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from '../user/guards/gql-auth.guard';
 
 @Resolver(of => PostType)
+@UseGuards(GqlAuthGuard)
 export class PostResolver {
     constructor(private postService: PostService) {}
 

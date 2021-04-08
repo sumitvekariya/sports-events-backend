@@ -3,21 +3,21 @@ import { IsEmail, IsOptional } from 'class-validator';
 
 @InputType()
 export class CreateUserInput {
-  @Field()
+  @Field({ nullable: true })
   telegramId?: number;
 
-  @Field()
-  nickName: string;
+  @Field({ nullable: true })
+  nickName?: string;
 
-  @Field({ defaultValue: '' })
+  @Field({ nullable: true })
   @IsOptional()
   firstName?: string;
 
-  @Field({ defaultValue: '' })
+  @Field({ nullable: true })
   @IsOptional()
   lastName?: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsEmail()
   email?: string;
 }
