@@ -7,20 +7,21 @@ import { PostModule } from './post/post.module';
 import { UserModule } from './user/user.module';
 import configuration from './constants/config/configuration';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
-      load: [configuration]
+      envFilePath:
+        process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
+      load: [configuration],
     }),
     RethinkModule,
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      context: ({ req }) => ({ headers: req.headers }),
     }),
     HobbytsBotModule,
     UserModule,
-    PostModule
-  ]
+    PostModule,
+  ],
 })
 export class AppModule {}

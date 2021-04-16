@@ -55,4 +55,12 @@ export class UserType {
   @Field({ nullable: true })
   @IsOptional()
   phone?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  telegramAccessHash?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  photoUrl?: string;
 }

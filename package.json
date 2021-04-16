@@ -40,6 +40,7 @@
     "nestjs-telegraf": "^2.0.0",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "passport-telegram": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rethinkdb": "^2.4.2",
     "rimraf": "^3.0.2",

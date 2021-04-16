@@ -1,15 +1,13 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { UpdateUserInput } from './dto/update-user.input';
-import { CreateUserInput } from './dto/create-user.input';
 import { UserService } from './user.service';
 import { UserType } from './user.type';
 import { AuthLoginInput } from './dto/auth-login.input';
-import { AuthRegisterInput } from './dto/auth-register.input';
 import { UserTokenType } from './user-token.type';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
 
-@Resolver(of => UserType)
+@Resolver((of) => UserType)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
@@ -19,9 +17,15 @@ export class UserResolver {
     return this.userService.getAll();
   }
 
+  // @UseGuards(GqlAuthGuard)
+  // @Query(() => UserType)
+  // getUser(@Args('id') id: string) {
+  //   return this.userService.getOne(id);
+  // }
+
   @UseGuards(GqlAuthGuard)
   @Query(() => UserType)
-  getUser(@Args('id') id: string) {
+  getProfile(@Args('id') id: string) {
     return this.userService.getOne(id);
   }
 
@@ -30,16 +34,16 @@ export class UserResolver {
     return this.userService.login(authLoginInput);
   }
 
-  @Mutation(() => UserTokenType)
-  register(@Args('authRegisterInput') authRegisterInput: AuthRegisterInput) {
-    return this.userService.register(authRegisterInput);
-  }
+  // @Mutation(() => UserTokenType)
+  // register(@Args('authRegisterInput') authRegisterInput: AuthRegisterInput) {
+  //   return this.userService.register(authRegisterInput);
+  // }
 
-  @UseGuards(GqlAuthGuard)
-  @Mutation(() => UserType)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.userService.create(createUserInput);
-  }
+  // @UseGuards(GqlAuthGuard)
+  // @Mutation(() => UserType)
+  // createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+  //   return this.userService.create(createUserInput);
+  // }
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserType)
