@@ -1,17 +1,15 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UpdateUserInput } from './dto/update-user.input';
-import { AuthRegisterInput } from './dto/auth-register.input';
 import { AuthLoginInput } from './dto/auth-login.input';
-import { UserTokenType } from './user-token.type';
 import { JwtService } from '@nestjs/jwt';
-import { AuthHelper } from './auth.helper';
 import { JwtDto } from './dto/jwt.dto';
 // import { createHash } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -21,6 +19,7 @@ export class UserService {
   constructor(
     @Inject('RethinkService') service,
     private jwtService: JwtService,
+    private configService: ConfigService
   ) {
     this.rethinkService = service;
   }
@@ -36,16 +35,19 @@ export class UserService {
   }
 
   async login(authLoginInput: AuthLoginInput) {
-    // createHash
     let found = await this.rethinkService.getDB('users', {
       telegramId: authLoginInput.telegramId,
     });
+    // Register user if new
     if (!found.length) {
       found = await this.create(authLoginInput);
       this.logger.log('New user registered: ' + found.id);
-      // throw new UnauthorizedException('Invalid credentials');
     } else {
       found = found[0];
+    }
+    // check if user is banned
+    if (found.banned) {
+      throw new UnauthorizedException('Banned user');
     }
     // if (authLoginInput.password) {
     //     const passwordValid = await AuthHelper.validate(authLoginInput.password, found[0].password);
@@ -54,40 +56,22 @@ export class UserService {
     //         throw new UnauthorizedException('Invalid credentials');
     //     }
     // }
-    const payload: JwtDto = { id: found.id };
+    const payload: JwtDto = { sub: found.id };
+    const token = this.jwtService.sign(payload)
+
     return {
       user: found,
-      token: this.jwtService.sign(payload),
-    };
-  }
-
-  async register(authRegisterInput: AuthRegisterInput): Promise<UserTokenType> {
-    const found = await this.rethinkService.getDB('users', {
-      telegramId: authRegisterInput.telegramId,
-    });
-    if (found.length > 0) {
-      throw new BadRequestException(
-        `Cannot register with telegramId ${authRegisterInput.telegramId}`,
-      );
-    }
-    if (authRegisterInput.password) {
-      authRegisterInput.password = await AuthHelper.hash(
-        authRegisterInput.password,
-      );
-    }
-
-    const createUser = await this.create(authRegisterInput);
-
-    return {
-      user: createUser,
-      token: this.jwtService.sign({ id: createUser.id }),
+      token
     };
   }
 
   async validateUser(id: string) {
-    // Check here if JWT not expired???
-    const result = await this.rethinkService.getByID('users', id);
-    return result;
+    const user = await this.rethinkService.getByID('users', id);
+    if (user) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
   }
 
   async create(createUserInput: AuthLoginInput) {

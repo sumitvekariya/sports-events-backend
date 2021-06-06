@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as rethinkDB from 'rethinkdb';
 import { ConfigService } from '@nestjs/config';
+import { RethinkIterator } from './rethink-iterator';
 
 // export class RethinkResponse {
 //     inserted: number;
@@ -80,6 +81,16 @@ export class RethinkService {
                 this.logger.error(`Some error fetching ${tableName} from DB`, err);
             });
         return result
+    }
+
+    // ToDo: finalize rethink subscription
+    async getSubscription(tableName, filter: any = {}) {
+        return new RethinkIterator(
+            rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .filter(filter),
+            this.connection,
+        );
     }
 
     async saveDB(tableName, data): Promise<any> {

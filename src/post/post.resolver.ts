@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Query, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args, Subscription } from '@nestjs/graphql';
 import { CreatePostInput } from './dto/create-post.input';
 import { PostType } from './post.type';
 import { PostService } from './post.service';
@@ -18,6 +18,11 @@ export class PostResolver {
     return this.postService.getAll();
   }
 
+  @Subscription(() => [PostType])
+  postChanges() {
+    return this.postService.subscribe();
+  } 
+
   @Query(() => PostType)
   getPost(@Args('id') id: string) {
     return this.postService.getOne(id);
@@ -28,7 +33,8 @@ export class PostResolver {
     @CtxUser() user: UserType,
     @Args('createPostInput') createPostInput: CreatePostInput,
   ) {
-    return this.postService.create(user.id, createPostInput);
+    const post = this.postService.create(user.id, createPostInput);
+    return post;
   }
 
   @Mutation(() => PostType)

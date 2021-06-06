@@ -15,6 +15,11 @@ export class PostService {
     return result;
   }
 
+  async subscribe() {
+    const result = await this.rethinkService.getSubscription('postMessages');
+    return result;
+  }
+
   async getOne(id: string) {
     const result = await this.rethinkService.getByID('postMessages', id);
     return result;

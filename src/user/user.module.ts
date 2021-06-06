@@ -16,7 +16,7 @@ import { GqlAuthGuard } from './guards/gql-auth.guard';
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SALT'),
                 signOptions: {
-                    expiresIn: 3600
+                    expiresIn: configService.get<number>('JWT_ACCESS_TOKEN_EXPIRATION_TIME') // 60s or 60m or 2h
                 }
             }),
             inject: [ConfigService] 

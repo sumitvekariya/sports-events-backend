@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { RethinkModule } from './rethink-db/rethink.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HobbytsBotModule } from './hobbyts-bot/hobbyts-bot.module';
 import { PostModule } from './post/post.module';
 import { UserModule } from './user/user.module';
 import configuration from './constants/config/configuration';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -16,12 +17,25 @@ import configuration from './constants/config/configuration';
     }),
     RethinkModule,
     GraphQLModule.forRoot({
+      installSubscriptionHandlers: true,
       autoSchemaFile: true,
       context: ({ req }) => ({ headers: req.headers }),
+      cors: {
+        origin: 'https://127.0.0.1',
+        credentials: true,
+      },
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get<number>('THROTTLE_TTL'),
+        limit: config.get<number>('THROTTLE_LIMIT'),
+      }),
     }),
     HobbytsBotModule,
     UserModule,
     PostModule,
-  ],
+  ]
 })
 export class AppModule {}

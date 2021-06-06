@@ -7,11 +7,8 @@ export default () => ({
     rethinkdb: {
       host: process.env.NODE_ENV === 'production' ? process.env.DB_URL : '127.0.0.1',
       port: parseInt(process.env.DB_PORT, 10) || 28015,
-      // user: 'admin',
-      // password: 'Myrdb$78513',
       authKey: '',
       db: process.env.DB_NAME || 'test',
-      // db: 'rethinkdb_ex',
       tables: ['users', 'places', 'channels', 'persistData', 'postMessages']
     },
     TELEGRAM: {
@@ -27,9 +24,6 @@ export default () => ({
         token: process.env.TELEGRAM_TOKEN
       },
       TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN,
-      // TELEGRAM_TOKEN: process.env.NODE_ENV === 'production'
-      // ? '1161498317:AAHQfr6CX1iTQ7E6bJAxGbsvl9qxOPRX2S0'
-      // : '893321915:AAE81pyPUyHV9Zxzk87on29Q5MHpzrzHNLo',
       HOST: process.env.TELEGRAM_HOST,
       WEBHOOK_PORT: parseInt(process.env.WEB_HOOK_PORT, 10) || 8443,
       PATH_TO_KEY: process.cwd() + '/tls/server.key',
