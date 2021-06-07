@@ -7,6 +7,7 @@ import { PostModule } from './post/post.module';
 import { UserModule } from './user/user.module';
 import configuration from './constants/config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { EventModule } from './event/event.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     HobbytsBotModule,
     UserModule,
     PostModule,
+    EventModule
   ]
 })
 export class AppModule {}
