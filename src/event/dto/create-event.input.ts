@@ -27,14 +27,6 @@ export class CreateEventInput {
   @Field()
   team: string;
   
-  @IsNotEmpty()
-  @Field()
-  skip: number;
-
-  @IsNotEmpty()
-  @Field()
-  limit: number;
-
 }
 
 @InputType()
