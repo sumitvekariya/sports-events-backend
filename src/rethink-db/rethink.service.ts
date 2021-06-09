@@ -142,4 +142,36 @@ export class RethinkService {
         return result
     }
 
+    async getTotalCount(tableName) {
+        let result = await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .count()
+            .run(this.connection)
+            .catch(err => {
+                this.logger.error(`Some error when getting total count`, err);
+            });
+
+        return result
+    }
+
+    async getDataWithPagination(tableName, skip, limit) {
+        let result;
+        await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .skip((skip * limit) - limit)
+            .limit(limit)
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getting getDataWithPagination`, err);
+            });
+
+        return result
+    }
+
 }

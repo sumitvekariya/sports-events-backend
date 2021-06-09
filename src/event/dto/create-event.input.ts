@@ -1,25 +1,53 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { MinLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateEventInput {
-  @MinLength(1)
+  @IsNotEmpty()
   @Field()
   name: string;
 
+  @IsNotEmpty()
   @Field()
   date: string;
 
+  @IsNotEmpty()
   @Field()
   startTime: string;
 
+  @IsNotEmpty()
   @Field(type => Int)
   duration: number;
 
+  @IsNotEmpty()
   @Field()
   field: string;
 
+  @IsNotEmpty()
   @Field()
   team: string;
   
+  @IsNotEmpty()
+  @Field()
+  skip: number;
+
+  @IsNotEmpty()
+  @Field()
+  limit: number;
+
+}
+
+@InputType()
+export class PaginationInputType {
+ 
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  skip: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  limit: number;
+
 }

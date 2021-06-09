@@ -1,3 +1,4 @@
+import { Query } from '@nestjs/common';
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 
 @ObjectType('Event')
@@ -9,7 +10,7 @@ export class EventType {
     name: string;
   
     @Field()
-    date: Date;
+    date: string;
   
     @Field()
     startTime: string;
@@ -22,4 +23,13 @@ export class EventType {
 
     @Field()
     team: string;
+}
+
+@ObjectType()
+export class EventTypeWithCount {
+    @Field()
+    totalCount: number
+
+    @Field(type => [EventType])
+    result: []
 }

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { CreateEventInput } from "./dto/create-event.input";
+import { EventType } from "./event.type";
 
 @Injectable()
 export class EventService {
@@ -27,8 +28,9 @@ export class EventService {
       }
     }
     
-    async getAll() {
-      const result = await this.rethinkService.getDB('events');
-      return result;
+    async getAllWithCount(skip: number,limit: number): Promise<{ result: EventType, totalCount: number}> {
+      const result = await this.rethinkService.getDataWithPagination('events', skip, limit);
+      const totalCount = await this.rethinkService.getTotalCount('events');
+      return { result, totalCount };
     }
 }
