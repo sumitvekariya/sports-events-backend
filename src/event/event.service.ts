@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CreateEventInput } from "./dto/create-event.input";
+import { CreateEventInput, UpdateEventInput } from "./dto/create-event.input";
 import { EventType } from "./event.type";
 
 @Injectable()
@@ -10,11 +10,12 @@ export class EventService {
         this.rethinkService = service;
     }
 
-    async create(CreateEventInput: CreateEventInput) {
+    async create(userId: string, CreateEventInput: CreateEventInput) {
       const uuid = await this.rethinkService.generateUID();
       const event = {
         ...CreateEventInput,
         id: uuid,
+        owner: userId
       };
 
       const { inserted, changes } = await this.rethinkService.saveDB(
@@ -28,9 +29,32 @@ export class EventService {
       }
     }
     
-    async getAllWithCount(skip: number,limit: number): Promise<{ result: EventType, totalCount: number}> {
-      const result = await this.rethinkService.getDataWithPagination('events', skip, limit);
+    async getAllWithCount(filter: any, skip: number,limit: number): Promise<{ result: EventType, totalCount: number}> {
+      const result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit);
       const totalCount = await this.rethinkService.getTotalCount('events');
       return { result, totalCount };
+    }
+
+    async update(updateEventInput: UpdateEventInput) {
+      const { id, ...rest } = updateEventInput;
+      const { replaced, changes } = await this.rethinkService.updateDB(
+        'events',
+        id,
+        updateEventInput,
+      );
+      if (replaced) {
+        return changes[0].new_val;
+      } else {
+        throw Error('Error while updating a events');
+      }
+    }
+    
+    async remove(id: string) {
+      const { deleted } = await this.rethinkService.removeDB('events', id);
+      if (deleted) {
+        return id;
+      } else {
+        throw Error('Error while deleting a events');
+      }
     }
 }

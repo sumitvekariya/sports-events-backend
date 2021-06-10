@@ -1,5 +1,6 @@
 import { Query } from '@nestjs/common';
 import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { UserType } from 'src/user/user.type';
 
 @ObjectType('Event')
 export class EventType {
@@ -23,6 +24,9 @@ export class EventType {
 
     @Field()
     team: string;
+
+    @Field()
+    owner: string;
 }
 
 @ObjectType()

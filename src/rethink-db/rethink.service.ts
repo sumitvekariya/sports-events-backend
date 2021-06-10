@@ -154,12 +154,13 @@ export class RethinkService {
         return result
     }
 
-    async getDataWithPagination(tableName, skip, limit) {
+    async getDataWithPagination(tableName, filter: any = {}, skip, limit) {
         let result;
         await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
             .table(tableName)
             .skip((skip * limit) - limit)
             .limit(limit)
+            .filter(filter)
             .run(this.connection)
             .then(cursor => {
                 cursor.toArray(function(err, res) {
