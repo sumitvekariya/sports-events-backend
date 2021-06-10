@@ -84,8 +84,9 @@ export class RethinkService {
     }
 
     // ToDo: finalize rethink subscription
-    async getSubscription(tableName, filter: any = {}) {
+    async getSubscription(subAction, tableName, filter: any = {}) {
         return new RethinkIterator(
+            subAction,
             rethinkDB.db(this.config.get<string>('rethinkdb.db'))
             .table(tableName)
             .filter(filter),

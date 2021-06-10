@@ -19,7 +19,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
     GraphQLModule.forRoot({
       installSubscriptionHandlers: true,
       autoSchemaFile: true,
-      context: ({ req }) => ({ headers: req.headers }),
+      context: ({ req, connection }) => {
+        if (connection) {
+          return connection.context;
+        } else {
+          return ({ headers: req.headers })
+        }
+      },
       cors: {
         origin: 'https://127.0.0.1',
         credentials: true,
