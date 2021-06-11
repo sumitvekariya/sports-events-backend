@@ -18,9 +18,11 @@ export class PostResolver {
     return this.postService.getAll();
   }
 
-  @Subscription(() => [PostType])
+  @Subscription(() => PostType, {
+    name: 'postChanges',
+  })
   postChanges() {
-    return this.postService.subscribe();
+    return this.postService.subscribe('postChanges');
   } 
 
   @Query(() => PostType)
@@ -33,6 +35,14 @@ export class PostResolver {
     @CtxUser() user: UserType,
     @Args('createPostInput') createPostInput: CreatePostInput,
   ) {
+    if (!user) {
+      user = {
+        id: 'test',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    }
+    // console.log(user, createPostInput)
     const post = this.postService.create(user.id, createPostInput);
     return post;
   }

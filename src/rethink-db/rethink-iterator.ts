@@ -2,14 +2,15 @@
 const { $$asyncIterator } = require("iterall");
 
 export class RethinkIterator {
-  constructor(query, conn) {
+  public actionName;
+  constructor(subAction, query, conn) {
     (this as any).cursor = query.changes().run(conn);
+    this.actionName = subAction;
   }
 
   async next() {
     const val = await (await (this as any).cursor).next();
-    // return { value: { res: val.new_val }, done: false };
-    return { value: val, done: false };
+    return { value: { [this.actionName]: val.new_val }, done: false };
   }
 
   async return() {
