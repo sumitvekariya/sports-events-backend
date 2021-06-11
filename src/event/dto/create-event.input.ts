@@ -9,7 +9,7 @@ export class CreateEventInput {
 
   @IsNotEmpty()
   @Field()
-  date: string;
+  date: Date;
 
   @IsNotEmpty()
   @Field()

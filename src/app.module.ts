@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import configuration from './constants/config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { EventModule } from './event/event.module';
+import { DateScalar } from './scalars/date-scalar';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { EventModule } from './event/event.module';
     UserModule,
     PostModule,
     EventModule
-  ]
+  ],
+  providers: [DateScalar]
 })
 export class AppModule {}
