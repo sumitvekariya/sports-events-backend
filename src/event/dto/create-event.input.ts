@@ -25,8 +25,11 @@ export class CreateEventInput {
 
   @IsNotEmpty()
   @Field()
-  team: string;
-  
+  totalMember: number;
+
+  @IsNotEmpty()
+  @Field()
+  teamSize: number;
 }
 
 @InputType()
@@ -56,7 +59,7 @@ export class UpdateEventInput {
 
   @IsNotEmpty()
   @Field()
-  date?: string;
+  date?: Date;
 
   @IsNotEmpty()
   @Field()
@@ -72,6 +75,10 @@ export class UpdateEventInput {
 
   @IsNotEmpty()
   @Field()
-  team?: string;
+  totalMember: number;
+
+  @IsNotEmpty()
+  @Field()
+  teamSize: number;
   
 }

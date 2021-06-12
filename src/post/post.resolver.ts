@@ -9,7 +9,7 @@ import { CtxUser } from 'src/user/decorators/ctx-user.decorator';
 import { UserType } from '../user/user.type';
 
 @Resolver((of) => PostType)
-@UseGuards(GqlAuthGuard)
+// @UseGuards(GqlAuthGuard)
 export class PostResolver {
   constructor(private postService: PostService) {}
 

@@ -57,4 +57,8 @@ export class EventService {
         throw Error('Error while deleting a events');
       }
     }
+
+    async subscribe(subAction: string) {
+      return this.rethinkService.getSubscription(subAction, 'events');
+    }
 }

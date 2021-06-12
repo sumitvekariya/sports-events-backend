@@ -1,5 +1,5 @@
 import { UseGuards } from "@nestjs/common";
-import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Args, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { UserType } from "src/user/user.type";
@@ -8,12 +8,12 @@ import { EventService } from "./event.service";
 import { EventType, EventTypeWithCount } from "./event.type";
 
 @Resolver()
-@UseGuards(GqlAuthGuard)
 export class EventResolver {
 
     constructor(private eventService: EventService) {}
 
     @Query(() => EventTypeWithCount)
+    @UseGuards(GqlAuthGuard)
     async getAllEvents(
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
     ) {
@@ -24,6 +24,7 @@ export class EventResolver {
     }
 
     @Query(() => EventTypeWithCount)
+    @UseGuards(GqlAuthGuard)
     async getMyEvents(
         @CtxUser() user: UserType,
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
@@ -34,7 +35,15 @@ export class EventResolver {
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
+    @Subscription(() => EventType, {
+        name: 'events',
+      })
+      eventChanges() {
+        return this.eventService.subscribe('events');
+      } 
+
     @Mutation(() => EventType)
+    @UseGuards(GqlAuthGuard)
     async createEvent(
         @CtxUser() user: UserType,
         @Args('createEventInput') CreateEventInput: CreateEventInput
@@ -44,6 +53,7 @@ export class EventResolver {
     }
 
     @Mutation(() => EventType)
+    @UseGuards(GqlAuthGuard)
     async updateEvent(
         @Args('updateEventInput') UpdateEventInput: UpdateEventInput
     ) {
@@ -52,6 +62,7 @@ export class EventResolver {
     }
 
     @Mutation(() => String)
+    @UseGuards(GqlAuthGuard)
     removeEvent(@Args('eventId') eventId: string) {
         this.eventService.remove(eventId);
         return 'Event deleted successfully'
