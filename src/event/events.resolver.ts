@@ -36,10 +36,10 @@ export class EventResolver {
     }
 
     @Subscription(() => EventType, {
-        name: 'events',
+        name: 'eventChanges',
       })
       eventChanges() {
-        return this.eventService.subscribe('events');
+        return this.eventService.subscribe('eventChanges');
       } 
 
     @Mutation(() => EventType)
