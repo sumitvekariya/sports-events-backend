@@ -38,6 +38,7 @@ export class PostResolver {
     if (!user) {
       user = {
         id: 'test',
+        role: 'admin',
         createdAt: new Date(),
         updatedAt: new Date()
       }

@@ -1,7 +1,9 @@
-import { UseGuards } from "@nestjs/common";
+import { SetMetadata, UseGuards } from "@nestjs/common";
 import { Args, Mutation, Query, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
+import { Roles } from "src/user/decorators/roles.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
+import { RolesGuard } from "src/user/guards/role-auth.guard";
 import { UserType } from "src/user/user.type";
 import { CreateEventInput, PaginationInputType, UpdateEventInput } from "./dto/create-event.input";
 import { EventService } from "./event.service";
@@ -13,18 +15,24 @@ export class EventResolver {
     constructor(private eventService: EventService) {}
 
     @Query(() => EventTypeWithCount)
-    @UseGuards(GqlAuthGuard)
     async getAllEvents(
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
     ) {
         const skip = PaginationInputType.skip || 1;
         const limit = PaginationInputType.limit || 10;
-        const data = await this.eventService.getAllWithCount({}, skip, limit);
+        let filter;
+        if (PaginationInputType.city) {
+            filter = (doc) => {
+                return doc('city').match(PaginationInputType.city)
+            }
+        }
+        const data = await this.eventService.getAllWithCount(filter, skip, limit);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
     @Query(() => EventTypeWithCount)
-    @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard, RolesGuard)
+    @Roles('eventAdmin')
     async getMyEvents(
         @CtxUser() user: UserType,
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
@@ -35,6 +43,7 @@ export class EventResolver {
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
+    // TODO:: add auth guard in subscription.
     @Subscription(() => EventType, {
         name: 'events',
       })
@@ -43,7 +52,8 @@ export class EventResolver {
       } 
 
     @Mutation(() => EventType)
-    @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard, RolesGuard)
+    @Roles('eventAdmin')
     async createEvent(
         @CtxUser() user: UserType,
         @Args('createEventInput') CreateEventInput: CreateEventInput
@@ -53,7 +63,8 @@ export class EventResolver {
     }
 
     @Mutation(() => EventType)
-    @UseGuards(GqlAuthGuard)
+    @UseGuards(GqlAuthGuard, RolesGuard)
+    @Roles('eventAdmin')
     async updateEvent(
         @Args('updateEventInput') UpdateEventInput: UpdateEventInput
     ) {
@@ -62,9 +73,15 @@ export class EventResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlAuthGuard)
-    removeEvent(@Args('eventId') eventId: string) {
-        this.eventService.remove(eventId);
-        return 'Event deleted successfully'
+    @UseGuards(GqlAuthGuard, RolesGuard)
+    @Roles('eventAdmin')
+    async removeEvent(@CtxUser() user: UserType, @Args('eventId') eventId: string) {
+        const removedData = await this.eventService.remove(user.id, eventId);
+        console.log(removedData)
+        if (removedData) {
+            return 'Event deleted successfully'
+        } else {
+            return 'You can\'t delete other\'s event.'
+        }
     }
 }

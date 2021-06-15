@@ -30,6 +30,10 @@ export class CreateEventInput {
   @IsNotEmpty()
   @Field()
   teamSize: number;
+
+  @IsNotEmpty()
+  @Field()
+  city: string;
 }
 
 @InputType()
@@ -44,6 +48,11 @@ export class PaginationInputType {
   @IsNumber()
   @Field()
   limit: number;
+
+  @IsOptional()
+  @IsString()
+  @Field()
+  city: string;
 
 }
 
@@ -81,4 +90,7 @@ export class UpdateEventInput {
   @Field()
   teamSize: number;
   
+  @IsNotEmpty()
+  @Field()
+  city: string;
 }

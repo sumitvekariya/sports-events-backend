@@ -56,7 +56,7 @@ export class UserService {
     //         throw new UnauthorizedException('Invalid credentials');
     //     }
     // }
-    const payload: JwtDto = { sub: found.id };
+    const payload: JwtDto = { sub: found.id, role: found.role };
     const token = this.jwtService.sign(payload)
 
     return {

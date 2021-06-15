@@ -1,5 +1,5 @@
 import { ObjectType, Field } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 
 @ObjectType('User')
 export class UserType {
@@ -63,4 +63,8 @@ export class UserType {
   @Field({ nullable: true })
   @IsOptional()
   photoUrl?: string;
+
+  @Field({ nullable: true })
+  @IsEnum(['admin','eventAdmin','regular-user'])
+  role: string;
 }

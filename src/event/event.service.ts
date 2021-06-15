@@ -49,12 +49,17 @@ export class EventService {
       }
     }
     
-    async remove(id: string) {
-      const { deleted } = await this.rethinkService.removeDB('events', id);
-      if (deleted) {
-        return id;
+    async remove(userId: string, id: string) {
+      const eventData = await this.rethinkService.getByID('events', id);
+      if (eventData && userId === eventData.owner) {
+        const { deleted } = await this.rethinkService.removeDB('events', id);
+        if (deleted) {
+          return true;
+        } else {
+          throw Error('Error while deleting a events');
+        }
       } else {
-        throw Error('Error while deleting a events');
+        return false;
       }
     }
 

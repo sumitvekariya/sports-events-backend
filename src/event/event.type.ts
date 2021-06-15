@@ -27,6 +27,9 @@ export class EventType {
 
     @Field()
     owner: string;
+
+    @Field()
+    city: string;
 }
 
 @ObjectType()

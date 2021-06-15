@@ -1,4 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
+import { IsEnum } from 'class-validator';
 
 @InputType()
 export class AuthLoginInput {
@@ -19,6 +20,10 @@ export class AuthLoginInput {
 
   @Field({ nullable: true })
   photoUrl?: string;
+
+  @Field()
+  @IsEnum(['admin','eventAdmin','regular-user'])
+  role: string;
 }
 
 // auth_date:   + add 3 zeroes (000) to match timeStamp
