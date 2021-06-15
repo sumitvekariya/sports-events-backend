@@ -45,10 +45,10 @@ export class EventResolver {
 
     // TODO:: add auth guard in subscription.
     @Subscription(() => EventType, {
-        name: 'events',
+        name: 'eventChanges',
       })
       eventChanges() {
-        return this.eventService.subscribe('events');
+        return this.eventService.subscribe('eventChanges');
       } 
 
     @Mutation(() => EventType)
