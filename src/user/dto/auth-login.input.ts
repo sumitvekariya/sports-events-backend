@@ -21,7 +21,7 @@ export class AuthLoginInput {
   @Field({ nullable: true })
   photoUrl?: string;
 
-  @Field()
+  @Field({defaultValue: 'regular-user'})
   @IsEnum(['admin','eventAdmin','regular-user'])
   role: string;
 }
