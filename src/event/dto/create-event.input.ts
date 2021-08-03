@@ -1,39 +1,61 @@
 import { InputType, Field, Int, ID } from '@nestjs/graphql';
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateEventInput {
   @IsNotEmpty()
+  @IsString()
   @Field()
-  name: string;
+  city: string;
 
   @IsNotEmpty()
   @Field()
-  date: Date;
+  sportType: string;
+
+  @IsNotEmpty()
+  @Field()
+  fieldType: string;
+
+  @IsNotEmpty()
+  @Field()
+  description: string;
 
   @IsNotEmpty()
   @Field()
   startTime: string;
 
   @IsNotEmpty()
+  @Field()
+  startDate: Date;
+
+  @IsNotEmpty()
+  @Field()
+  endDate: Date;
+
+  @IsNotEmpty()
+  @Field()
+  endTime: string;
+
+  @IsNotEmpty()
   @Field(type => Int)
-  duration: number;
-
-  @IsNotEmpty()
-  @Field()
-  field: string;
-
-  @IsNotEmpty()
-  @Field()
-  totalMember: number;
-
-  @IsNotEmpty()
-  @Field()
   teamSize: number;
 
   @IsNotEmpty()
+  @Field(type => Int)
+  playerLimit: number;
+
+  @IsNotEmpty()
+  @IsEnum(['draft', 'published'])
   @Field()
-  city: string;
+  status: string;
+  
+  @IsNotEmpty()
+  @Field()
+  type: string;
+
+  @IsNotEmpty()
+  @Field()
+  isIndoor: number;
 }
 
 @InputType()
@@ -63,34 +85,56 @@ export class UpdateEventInput {
   id: string;
   
   @IsNotEmpty()
+  @IsString()
   @Field()
-  name?: string;
+  city: string;
 
   @IsNotEmpty()
   @Field()
-  date?: Date;
+  sportType: string;
 
   @IsNotEmpty()
   @Field()
-  startTime?: string;
+  fieldType: string;
+
+  @IsNotEmpty()
+  @Field()
+  description: string;
+
+  @IsNotEmpty()
+  @Field()
+  startTime: string;
+
+  @IsNotEmpty()
+  @Field()
+  startDate: Date;
+
+  @IsNotEmpty()
+  @Field()
+  endDate: Date;
+
+  @IsNotEmpty()
+  @Field()
+  endTime: string;
 
   @IsNotEmpty()
   @Field(type => Int)
-  duration?: number;
-
-  @IsNotEmpty()
-  @Field()
-  field?: string;
-
-  @IsNotEmpty()
-  @Field()
-  totalMember: number;
-
-  @IsNotEmpty()
-  @Field()
   teamSize: number;
+
+  @IsNotEmpty()
+  @Field(type => Int)
+  playerLimit: number;
+
+  @IsNotEmpty()
+  @IsEnum(['draft', 'published'])
+  @Field()
+  status: string;
   
   @IsNotEmpty()
   @Field()
-  city: string;
+  type: string;
+
+  @IsNotEmpty()
+  @Field()
+  isIndoor: number;
 }

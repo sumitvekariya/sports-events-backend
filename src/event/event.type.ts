@@ -1,35 +1,53 @@
 import { Query } from '@nestjs/common';
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field, Int, EnumOptions } from '@nestjs/graphql';
 import { UserType } from 'src/user/user.type';
 
 @ObjectType('Event')
 export class EventType {
     @Field()
     id: string;
+    
+    @Field()
+    city: string;
 
     @Field()
-    name: string;
-  
+    sportType: string;
+
     @Field()
-    date: string;
-  
+    fieldType: string;
+
+    @Field()
+    description: string;
+
     @Field()
     startTime: string;
 
-    @Field(type => Int)
-    duration: number;
+    @Field()
+    startDate: string;
 
     @Field()
-    field: string;
+    endDate: string;
 
     @Field()
-    team: string;
+    endTime: string;
+
+    @Field()
+    teamSize: string;
+
+    @Field()
+    playerLimit: string;
 
     @Field()
     owner: string;
 
     @Field()
-    city: string;
+    status: string;
+
+    @Field()
+    type: string; // public or private
+
+    @Field()
+    isIndoor: number; // indoor = 1, outdoor = 0
 }
 
 @ObjectType()
