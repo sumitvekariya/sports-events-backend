@@ -38,8 +38,7 @@ export class EventResolver {
     }
 
     @Query(() => EventTypeWithCount)
-    @UseGuards(GqlAuthGuard, RolesGuard)
-    @Roles('eventAdmin')
+    @UseGuards(GqlAuthGuard)
     async getMyEvents(
         @CtxUser() user: UserType,
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
@@ -59,8 +58,7 @@ export class EventResolver {
       } 
 
     @Mutation(() => EventType)
-    @UseGuards(GqlAuthGuard, RolesGuard)
-    @Roles('eventAdmin')
+    @UseGuards(GqlAuthGuard)
     async createEvent(
         @CtxUser() user: UserType,
         @Args('createEventInput') CreateEventInput: CreateEventInput
@@ -70,8 +68,7 @@ export class EventResolver {
     }
 
     @Mutation(() => EventType)
-    @UseGuards(GqlAuthGuard, RolesGuard)
-    @Roles('eventAdmin')
+    @UseGuards(GqlAuthGuard)
     async updateEvent(
         @Args('updateEventInput') UpdateEventInput: UpdateEventInput
     ) {
@@ -80,8 +77,7 @@ export class EventResolver {
     }
 
     @Mutation(() => String)
-    @UseGuards(GqlAuthGuard, RolesGuard)
-    @Roles('eventAdmin')
+    @UseGuards(GqlAuthGuard)
     async removeEvent(@CtxUser() user: UserType, @Args('eventId') eventId: string) {
         const removedData = await this.eventService.remove(user.id, eventId);
         console.log(removedData)
