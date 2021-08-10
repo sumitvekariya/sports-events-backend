@@ -15,17 +15,24 @@ export class EventResolver {
     constructor(private eventService: EventService) {}
 
     @Query(() => EventTypeWithCount)
+    // @UseGuards(GqlAuthGuard)
     async getAllEvents(
+        @CtxUser() user: UserType,
         @Args('PaginationInputType') PaginationInputType: PaginationInputType
     ) {
         const skip = PaginationInputType.skip || 1;
         const limit = PaginationInputType.limit || 10;
-        let filter;
+        let filter = {};
         if (PaginationInputType.city) {
-            filter = (doc) => {
-                return doc('city').match(PaginationInputType.city)
-            }
+            filter['city'] = PaginationInputType.city;
         }
+        if (PaginationInputType.type) {
+            filter['type'] = PaginationInputType.type;
+        }
+        // if (user && user.id) {
+        //     filter['owner'] = user.id;
+        // }
+
         const data = await this.eventService.getAllWithCount(filter, skip, limit);
         return { totalCount: data['totalCount'], result: data['result'] }
     }

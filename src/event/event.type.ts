@@ -1,5 +1,6 @@
 import { Query } from '@nestjs/common';
 import { ObjectType, Field, Int, EnumOptions } from '@nestjs/graphql';
+import { IsOptional } from 'class-validator';
 import { UserType } from 'src/user/user.type';
 
 @ObjectType('Event')
@@ -25,8 +26,8 @@ export class EventType {
     @Field()
     startDate: string;
 
-    @Field()
-    endDate: string;
+    @Field({ nullable: true })
+    endDate?: string;
 
     @Field()
     endTime: string;

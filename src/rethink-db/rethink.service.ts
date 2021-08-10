@@ -143,9 +143,10 @@ export class RethinkService {
         return result
     }
 
-    async getTotalCount(tableName) {
+    async getTotalCount(tableName, filter) {
         let result = await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
             .table(tableName)
+            .filter(filter)
             .count()
             .run(this.connection)
             .catch(err => {

@@ -1,5 +1,5 @@
 import { InputType, Field, Int, ID } from '@nestjs/graphql';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsEmpty, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateEventInput {
@@ -28,9 +28,8 @@ export class CreateEventInput {
   @Field()
   startDate: Date;
 
-  @IsNotEmpty()
-  @Field()
-  endDate: Date;
+  @Field({ nullable: true })
+  endDate?: Date;
 
   @IsNotEmpty()
   @Field()
@@ -69,12 +68,15 @@ export class PaginationInputType {
   @IsNotEmpty()
   @IsNumber()
   @Field()
-  limit: number;
+  limit!: number;
+
+  @Field({ nullable: true })
+  city?: string;
 
   @IsOptional()
   @IsString()
-  @Field()
-  city: string;
+  @Field({ nullable: true })
+  type?: string;
 
 }
 
@@ -109,8 +111,8 @@ export class UpdateEventInput {
   @Field()
   startDate: Date;
 
-  @IsNotEmpty()
   @Field()
+  @IsOptional()
   endDate: Date;
 
   @IsNotEmpty()
