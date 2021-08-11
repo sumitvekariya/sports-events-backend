@@ -63,6 +63,11 @@ export class EventService {
       }
     }
 
+    async getEventDetail(id:string) {
+      const result = await this.rethinkService.getByID('events', id);
+      return result;
+    }
+
     async subscribe(subAction: string) {
       return this.rethinkService.getSubscription(subAction, 'events');
     }

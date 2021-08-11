@@ -33,10 +33,10 @@ export class EventType {
     endTime: string;
 
     @Field()
-    teamSize: string;
+    teamSize: number;
 
     @Field()
-    playerLimit: string;
+    playerLimit: number;
 
     @Field()
     owner: string;

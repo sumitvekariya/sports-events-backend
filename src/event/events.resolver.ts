@@ -5,7 +5,7 @@ import { Roles } from "src/user/decorators/roles.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { RolesGuard } from "src/user/guards/role-auth.guard";
 import { UserType } from "src/user/user.type";
-import { CreateEventInput, PaginationInputType, UpdateEventInput } from "./dto/create-event.input";
+import { CreateEventInput, PaginationInputType, UpdateEventInput, GetEventDetailInput } from "./dto/create-event.input";
 import { EventService } from "./event.service";
 import { EventType, EventTypeWithCount } from "./event.type";
 
@@ -47,6 +47,16 @@ export class EventResolver {
         const limit = PaginationInputType.limit || 10;
         const data = await this.eventService.getAllWithCount({ owner: user.id }, skip, limit);
         return { totalCount: data['totalCount'], result: data['result'] }
+    }
+
+    @Query(() => EventType)
+    @UseGuards(GqlAuthGuard)
+    async getEventDetail(
+        @CtxUser() user: UserType,
+        @Args('GetEventDetailInput') GetEventDetailInput: GetEventDetailInput
+    ) {
+        const result = await this.eventService.getEventDetail(GetEventDetailInput.id);
+        return result
     }
 
     // TODO:: add auth guard in subscription.

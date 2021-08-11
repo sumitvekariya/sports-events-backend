@@ -111,9 +111,8 @@ export class UpdateEventInput {
   @Field()
   startDate: Date;
 
-  @Field()
-  @IsOptional()
-  endDate: Date;
+  @Field({ nullable: true })
+  endDate?: Date;
 
   @IsNotEmpty()
   @Field()
@@ -139,4 +138,13 @@ export class UpdateEventInput {
   @IsNotEmpty()
   @Field()
   isIndoor: number;
+}
+
+@InputType()
+export class GetEventDetailInput {
+ 
+  @IsNotEmpty()
+  @Field(() => ID)
+  id: string;
+
 }
