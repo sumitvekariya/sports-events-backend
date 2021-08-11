@@ -23,6 +23,7 @@ export class EventResolver {
         const skip = PaginationInputType.skip || 1;
         const limit = PaginationInputType.limit || 10;
         let filter = {};
+        let betweenRange = {};
         if (PaginationInputType.city) {
             filter['city'] = PaginationInputType.city;
         }
@@ -33,7 +34,11 @@ export class EventResolver {
         //     filter['owner'] = user.id;
         // }
 
-        const data = await this.eventService.getAllWithCount(filter, skip, limit);
+        
+        betweenRange['start'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.startDate);
+        betweenRange['end'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.endDate);
+
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -45,7 +50,7 @@ export class EventResolver {
     ) {
         const skip = PaginationInputType.skip || 1;
         const limit = PaginationInputType.limit || 10;
-        const data = await this.eventService.getAllWithCount({ owner: user.id }, skip, limit);
+        const data = await this.eventService.getAllWithCount({ owner: user.id }, skip, limit, null);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -90,7 +95,6 @@ export class EventResolver {
     @UseGuards(GqlAuthGuard)
     async removeEvent(@CtxUser() user: UserType, @Args('eventId') eventId: string) {
         const removedData = await this.eventService.remove(user.id, eventId);
-        console.log(removedData)
         if (removedData) {
             return 'Event deleted successfully'
         } else {

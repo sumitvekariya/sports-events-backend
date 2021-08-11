@@ -73,6 +73,12 @@ export class PaginationInputType {
   @Field({ nullable: true })
   city?: string;
 
+  @Field({ nullable: true })
+  startDate?: number;
+
+  @Field({ nullable: true })
+  endDate?: number;
+
   @IsOptional()
   @IsString()
   @Field({ nullable: true })

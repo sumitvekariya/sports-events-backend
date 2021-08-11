@@ -156,13 +156,19 @@ export class RethinkService {
         return result
     }
 
-    async getDataWithPagination(tableName, filter: any = {}, skip, limit) {
+    async getDataWithPagination(tableName, filter: any = {}, skip, limit, betweenRange: any = {}) {
         let result;
         await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
             .table(tableName)
             .skip((skip * limit) - limit)
             .limit(limit)
             .filter(filter)
+            .filter((doc) => {
+                if (betweenRange && betweenRange.start && betweenRange.end) {
+                    return doc("startDate").ge(betweenRange.start).and(doc("endDate").le(betweenRange.end))
+                }
+                return {};
+            })
             .run(this.connection)
             .then(cursor => {
                 cursor.toArray(function(err, res) {

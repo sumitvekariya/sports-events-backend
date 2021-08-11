@@ -29,8 +29,8 @@ export class EventService {
       }
     }
     
-    async getAllWithCount(filter: any, skip: number,limit: number): Promise<{ result: EventType, totalCount: number}> {
-      const result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit);
+    async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any): Promise<{ result: EventType, totalCount: number}> {
+      const result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
       const totalCount = await this.rethinkService.getTotalCount('events', filter);
       return { result, totalCount };
     }
