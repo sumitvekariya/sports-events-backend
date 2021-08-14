@@ -165,7 +165,7 @@ export class RethinkService {
             .filter(filter)
             .filter((doc) => {
                 if (betweenRange && betweenRange.start && betweenRange.end) {
-                    return doc("startDate").ge(betweenRange.start).and(doc("endDate").le(betweenRange.end))
+                    return doc("startDate").ge(betweenRange.start) && (doc("endDate").le(betweenRange.end))
                 }
                 return {};
             })

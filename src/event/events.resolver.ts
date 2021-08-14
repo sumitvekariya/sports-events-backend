@@ -5,7 +5,7 @@ import { Roles } from "src/user/decorators/roles.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { RolesGuard } from "src/user/guards/role-auth.guard";
 import { UserType } from "src/user/user.type";
-import { CreateEventInput, PaginationInputType, UpdateEventInput, GetEventDetailInput } from "./dto/create-event.input";
+import { CreateEventInput, PaginationInputType, UpdateEventInput, GetEventDetailInput, LeaveJoinEventInput } from "./dto/create-event.input";
 import { EventService } from "./event.service";
 import { EventType, EventTypeWithCount } from "./event.type";
 
@@ -30,13 +30,33 @@ export class EventResolver {
         if (PaginationInputType.type) {
             filter['type'] = PaginationInputType.type;
         }
-        // if (user && user.id) {
+        if (PaginationInputType.sportType) {
+            filter['sportType'] = PaginationInputType.sportType;
+        }
+        if ('isIndoor' in PaginationInputType) {
+            filter['isIndoor'] = PaginationInputType.isIndoor ? 1 : 0;
+        }
+
+        if (PaginationInputType.teamSize) {
+            filter['teamSize'] = PaginationInputType.teamSize;
+        }
+
+        if (PaginationInputType.startTime) {
+            filter['startTime'] = PaginationInputType.startTime;
+        }
+            // if (user && user.id) {
         //     filter['owner'] = user.id;
         // }
-
         
-        betweenRange['start'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.startDate);
-        betweenRange['end'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.endDate);
+        if ('startDate' in PaginationInputType && PaginationInputType.startDate) {
+            filter['startDate'] = new Date(PaginationInputType.startDate)
+        }
+
+        if (PaginationInputType.startDate && PaginationInputType.endDate) {
+            betweenRange['start'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.startDate);
+            betweenRange['end'] = PaginationInputType.endDate === 0 ? 0 : new Date(PaginationInputType.endDate);
+            delete filter['startDate'];
+        }
 
         const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);
         return { totalCount: data['totalCount'], result: data['result'] }
@@ -50,7 +70,43 @@ export class EventResolver {
     ) {
         const skip = PaginationInputType.skip || 1;
         const limit = PaginationInputType.limit || 10;
-        const data = await this.eventService.getAllWithCount({ owner: user.id }, skip, limit, null);
+        let filter = {
+            owner: user.id
+        };
+
+        let betweenRange = {};
+
+        if (PaginationInputType.city) {
+            filter['city'] = PaginationInputType.city;
+        }
+        if (PaginationInputType.type) {
+            filter['type'] = PaginationInputType.type;
+        }
+        if (PaginationInputType.sportType) {
+            filter['sportType'] = PaginationInputType.sportType;
+        }
+        if ('isIndoor' in PaginationInputType) {
+            filter['isIndoor'] = PaginationInputType.isIndoor ? 1 : 0;
+        }
+
+        if (PaginationInputType.teamSize) {
+            filter['teamSize'] = PaginationInputType.teamSize;
+        }
+
+        if (PaginationInputType.startTime) {
+            filter['startTime'] = PaginationInputType.startTime;
+        }
+
+        if ('startDate' in PaginationInputType && PaginationInputType.startDate) {
+            filter['startDate'] = new Date(PaginationInputType.startDate)
+        }
+
+        if (PaginationInputType.startDate && PaginationInputType.endDate) {
+            betweenRange['start'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.startDate);
+            betweenRange['end'] = PaginationInputType.endDate === 0 ? 0 : new Date(PaginationInputType.endDate);
+        }
+        
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -101,4 +157,15 @@ export class EventResolver {
             return 'You can\'t delete other\'s event.'
         }
     }
+
+    // @Mutation(() => String)
+    // @UseGuards(GqlAuthGuard)
+    // async leaveJoinEvent(@CtxUser() user: UserType, @Args('LeaveJoinEventInput') LeaveJoinEventInput: LeaveJoinEventInput) {
+    //     // const removedData = await this.eventService.remove(user.id, eventId);
+    //     // if (removedData) {
+    //     //     return 'Event deleted successfully'
+    //     // } else {
+    //     //     return 'You can\'t delete other\'s event.'
+    //     // }
+    // }
 }

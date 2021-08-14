@@ -1,5 +1,5 @@
 import { InputType, Field, Int, ID } from '@nestjs/graphql';
-import { IsEmpty, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
+import { IsBoolean, IsEmpty, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateEventInput {
@@ -84,6 +84,40 @@ export class PaginationInputType {
   @Field({ nullable: true })
   type?: string;
 
+  @IsOptional()
+  @IsString()
+  @Field({ nullable: true })
+  followedBy?: string;
+
+  @IsOptional()
+  @IsString()
+  @Field({ nullable: true })
+  sportType?: string;
+
+  @IsOptional()
+  @IsString()
+  @Field({ nullable: true })
+  startTime?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @Field({ nullable: true })
+  isIndoor?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Field({ nullable: true })
+  isOutdoor?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Field({ nullable: true })
+  openToJoin?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Field({ nullable: true })
+  teamSize?: number;
 }
 
 @InputType()
@@ -153,4 +187,14 @@ export class GetEventDetailInput {
   @Field(() => ID)
   id: string;
 
+}
+@InputType()
+export class LeaveJoinEventInput {
+  @IsNotEmpty()
+  @Field(() => ID)
+  eventId: string;
+
+  @IsNotEmpty()
+  @Field()
+  isJoin: string;
 }
