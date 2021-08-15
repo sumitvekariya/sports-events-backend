@@ -22,9 +22,11 @@ import { RethinkIterator } from './rethink-iterator';
 export class RethinkService {
     private readonly logger = new Logger(RethinkService.name);
     private connection: rethinkDB.Connection
+    private readonly r: any;
 
     constructor(@Inject('RethinkProvider') connection, private config: ConfigService) {
-        this.connection = connection
+        this.connection = connection;
+        this.r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
     }
 
      /**
@@ -156,6 +158,25 @@ export class RethinkService {
         return result
     }
 
+    async getDataWithFilter(tableName, filter) {
+        let result;
+        await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .filter(filter)
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getDataWithFilter`, err);
+            });
+
+        return result
+    }
+
     async getDataWithPagination(tableName, filter: any = {}, skip, limit, betweenRange: any = {}) {
         let result;
         await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
@@ -183,4 +204,30 @@ export class RethinkService {
         return result
     }
 
+    async getPlayerList(filter: any) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table("eventPlayers")
+            .filter(filter)
+            .innerJoin(r.table("users"), (eventRow, userRow) => {
+                return eventRow('playerId').eq(userRow('id'))
+            })
+            .withFields(
+                {"left": { "id": true, "playerId": true, "eventId": true, "status": true }},{"right": { firstName: true, lastName: true }}
+            )
+            .zip()
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getPlayerList`, err);
+            });
+
+        return result
+    }
 }

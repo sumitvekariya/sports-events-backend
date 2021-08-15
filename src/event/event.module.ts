@@ -6,5 +6,6 @@ import { EventResolver } from './events.resolver';
 @Module({
   imports: [RethinkModule],
   providers: [EventResolver, EventService],
+  exports: [EventService]
 })
 export class EventModule {}

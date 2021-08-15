@@ -9,6 +9,7 @@ import configuration from './constants/config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { EventModule } from './event/event.module';
 import { DateScalar } from './scalars/date-scalar';
+import { EventPlayerModule } from './event-player/event-player.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { DateScalar } from './scalars/date-scalar';
     HobbytsBotModule,
     UserModule,
     PostModule,
-    EventModule
+    EventModule,
+    EventPlayerModule
   ],
   providers: [DateScalar]
 })
