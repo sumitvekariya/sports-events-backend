@@ -18,7 +18,7 @@ export class EventPlayerResolver {
     @Args('joinEventInput') joinEventInput: JoinEventInput
   ) {
     const eventJoin = await this.eventPlayerService.create(user.id, joinEventInput);
-    return {...eventJoin, message: "You have joined the event successfully"};
+    return eventJoin;
   }
 
   @Mutation(() => LeaveEventType)
@@ -30,7 +30,7 @@ export class EventPlayerResolver {
     const leaveEvent = await this.eventPlayerService.remove(user.id, leaveEventInput.eventId);
 
     if (leaveEvent) {
-    return { message: 'You successfully leaved the event.' }
+    return { message: 'You successfully left the event.' }
     } else {
       return { message: "Please join event first" }
     }

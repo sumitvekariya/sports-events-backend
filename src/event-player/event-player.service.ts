@@ -10,28 +10,38 @@ export class EventPlayerService {
   }
 
   async create(userId: string, JoinEventInput: JoinEventInput) {
-    const checkExistingData = await this.rethinkService.getDataWithFilter('eventPlayers', { eventId: JoinEventInput.eventId, playerId: userId });
 
-    if (checkExistingData && checkExistingData.length === 0) {
-      const uuid = await this.rethinkService.generateUID();
-      const eventPlayerObj = {
-        ...JoinEventInput,
-        id: uuid,
-        playerId: userId,
-        status: true
-      };
-  
-      const { inserted, changes } = await this.rethinkService.saveDB(
-        'eventPlayers',
-        eventPlayerObj,
-      );
-      if (inserted) {
-        return changes[0].new_val;
+    const allPlayers = await this.rethinkService.getDataWithFilter('eventPlayers', { eventId: JoinEventInput.eventId });
+
+    const checkExistingData = allPlayers.find(ap => ap.playerId === userId);
+
+    // get event Detail
+    const eventData = await this.rethinkService.getByID('events', JoinEventInput.eventId);
+
+    if (eventData && eventData.playerLimit > allPlayers.length) {
+      if (!checkExistingData) {
+        const uuid = await this.rethinkService.generateUID();
+        const eventPlayerObj = {
+          ...JoinEventInput,
+          id: uuid,
+          playerId: userId,
+          status: true
+        };
+    
+        const { inserted, changes } = await this.rethinkService.saveDB(
+          'eventPlayers',
+          eventPlayerObj,
+        );
+        if (inserted) {
+          return {...changes[0].new_val, message: "You have joined the event successfully"};
+        } else {
+          throw Error('Error in join event');
+        }
       } else {
-        throw Error('Error in join event');
+        return {...checkExistingData, message: "You have joined the event successfully"};
       }
     } else {
-      return checkExistingData[0];
+      return { message: "Event is full. You can't join right now."}
     }
   }  
 

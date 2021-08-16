@@ -5,13 +5,13 @@ export class JoinEventType {
   @Field({ nullable: true })
   id: string;
   
-  @Field()
+  @Field({ nullable: true })
   eventId: string;
 
-  @Field()
+  @Field({ nullable: true })
   playerId: string;
 
-  @Field()
+  @Field({ nullable: true })
   status: string;
 
   @Field({ nullable: true })
