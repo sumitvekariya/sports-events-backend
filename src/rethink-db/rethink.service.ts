@@ -214,7 +214,7 @@ export class RethinkService {
                 return eventRow('playerId').eq(userRow('id'))
             })
             .withFields(
-                {"left": { "id": true, "playerId": true, "eventId": true, "status": true }},{"right": { firstName: true, lastName: true }}
+                {"left": { "id": true, "playerId": true, "eventId": true, "status": true, "positions": true }},{"right": { firstName: true, lastName: true }}
             )
             .zip()
             .run(this.connection)

@@ -58,4 +58,16 @@ export class EventPlayerList {
 
   @Field({ nullable: true })
   nickName?: string;
+
+  @Field(() => [String], { nullable: true })
+  positions: [string];
+}
+
+@ObjectType()
+export class UpdatePositionType {
+  @Field({ nullable: true })
+  message: string;
+
+  @Field({ nullable: true })
+  playerId: string;
 }

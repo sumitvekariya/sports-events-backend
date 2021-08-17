@@ -1,5 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { IsBoolean, IsNotEmpty, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsString } from "class-validator";
 
 @InputType()
 export class JoinEventInput {
@@ -15,4 +15,13 @@ export class LeaveEventInput {
   @IsString()
   @Field()
   eventId: string;
+}
+
+@InputType()
+export class UpdatePositionInput {
+  @Field({ nullable: true })
+  eventId: string;
+
+  @Field(() => [String], { nullable: true })
+  positions: [string];
 }

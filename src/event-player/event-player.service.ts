@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { JoinEventInput } from './dto/event-player.dto';
+import { JoinEventInput, UpdatePositionInput } from './dto/event-player.dto';
 
 @Injectable()
 export class EventPlayerService {
@@ -25,7 +25,8 @@ export class EventPlayerService {
           ...JoinEventInput,
           id: uuid,
           playerId: userId,
-          status: true
+          status: true,
+          positions: []
         };
     
         const { inserted, changes } = await this.rethinkService.saveDB(
@@ -64,4 +65,23 @@ export class EventPlayerService {
     const result = await this.rethinkService.getPlayerList({ eventId });
     return result
   }
+
+  async update(userId: string, updatePositionInput: UpdatePositionInput) {
+    const foundData = await this.rethinkService.getDataWithFilter('eventPlayers', { playerId: userId , eventId: updatePositionInput.eventId });
+    if (foundData && foundData.length) {
+      const { replaced, changes } = await this.rethinkService.updateDB(
+        'eventPlayers',
+        foundData[0].id,
+        { positions: updatePositionInput.positions },
+      );
+      if (replaced) {
+      return changes[0].new_val;
+      } else {
+        throw Error('Error while updating a Positions');
+      }
+    } else {
+      throw Error("Please join event first");
+    }
+  }
+
 }
