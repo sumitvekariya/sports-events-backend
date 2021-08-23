@@ -67,4 +67,9 @@ export class UserType {
   @Field({ nullable: true })
   @IsEnum(['admin','eventAdmin','regular-user'])
   role: string;
+
+  
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  positions?: [string];
 }

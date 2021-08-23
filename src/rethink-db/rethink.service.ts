@@ -214,8 +214,35 @@ export class RethinkService {
                 return eventRow('playerId').eq(userRow('id'))
             })
             .withFields(
-                {"left": { "id": true, "playerId": true, "eventId": true, "status": true, "positions": true }},{"right": { firstName: true, lastName: true }}
+                {"left": { "id": true, "playerId": true, "eventId": true, "status": true }},{"right": { "firstName": true, "lastName": true, "positions": true }}
             )
+            .zip()
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getPlayerList`, err);
+            });
+
+        return result
+    }
+
+    async getFriendList(filter: any) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table("friends")
+            .filter(filter)
+            .innerJoin(r.table("users"), (friendRow, userRow) => {
+                return friendRow('friendId').eq(userRow('id'))
+            })
+            // .withFields(
+            //     {"left": { "id": true, "playerId": true, "eventId": true, "status": true }},{"right": { "firstName": true, "lastName": true, "positions": true }}
+            // )
             .zip()
             .run(this.connection)
             .then(cursor => {

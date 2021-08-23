@@ -34,6 +34,16 @@ export class EventPlayerService {
           eventPlayerObj,
         );
         if (inserted) {
+          // add notification object
+          const notificationObj = {
+            userId,
+            type: "join_event",
+            isRead: 0, // unread - 0, read - 1,
+            eventId: JoinEventInput.eventId,
+            ownerId: eventData.owner
+          };
+          await this.rethinkService.saveDB('notifications', notificationObj);
+
           return {...changes[0].new_val, message: "You have joined the event successfully"};
         } else {
           throw Error('Error in join event');
@@ -52,6 +62,17 @@ export class EventPlayerService {
     if (existingEventPlayer && existingEventPlayer.playerId === playerId) {
       const { deleted } = await this.rethinkService.removeDB('eventPlayers', existingEventPlayer.id);
       if (deleted) {
+        const eventData = await this.rethinkService.getByID('events', eventId);
+        // add notification object
+        const notificationObj = {
+          userId: playerId,
+          type: "leave_event",
+          isRead: 0, // unread - 0, read - 1,
+          eventId: eventId,
+          owner: eventData.owner
+        };
+        await this.rethinkService.saveDB('notifications', notificationObj);
+
         return true;
       } else {
         throw Error('Error while deleting a eventPlayers');
@@ -67,11 +88,9 @@ export class EventPlayerService {
   }
 
   async update(userId: string, updatePositionInput: UpdatePositionInput) {
-    const foundData = await this.rethinkService.getDataWithFilter('eventPlayers', { playerId: userId , eventId: updatePositionInput.eventId });
-    if (foundData && foundData.length) {
       const { replaced, changes } = await this.rethinkService.updateDB(
-        'eventPlayers',
-        foundData[0].id,
+        'users',
+        userId,
         { positions: updatePositionInput.positions },
       );
       if (replaced) {
@@ -79,9 +98,11 @@ export class EventPlayerService {
       } else {
         throw Error('Error while updating a Positions');
       }
-    } else {
-      throw Error("Please join event first");
-    }
+  }
+
+  async subscribe(subAction: string) {
+    const data = await this.rethinkService.getSubscription(subAction, 'eventPlayers');
+    return data
   }
 
 }

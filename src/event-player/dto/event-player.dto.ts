@@ -19,9 +19,6 @@ export class LeaveEventInput {
 
 @InputType()
 export class UpdatePositionInput {
-  @Field({ nullable: true })
-  eventId: string;
-
   @Field(() => [String], { nullable: true })
   positions: [string];
 }

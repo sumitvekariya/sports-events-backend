@@ -1,5 +1,5 @@
 import { UseGuards } from "@nestjs/common";
-import { Query, Args, Mutation, Resolver } from "@nestjs/graphql";
+import { Query, Args, Mutation, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { UserType } from "src/user/user.type";
@@ -18,7 +18,7 @@ export class EventPlayerResolver {
     @Args('joinEventInput') joinEventInput: JoinEventInput
   ) {
     const eventJoin = await this.eventPlayerService.create(user.id, joinEventInput);
-    return eventJoin;
+    return {...eventJoin, positions: user.positions};
   }
 
   @Mutation(() => LeaveEventType)
@@ -46,18 +46,29 @@ export class EventPlayerResolver {
       return result
   }
   
-  @Mutation(() => UpdatePositionType)
+  @Mutation(() => UserType)
   @UseGuards(GqlAuthGuard)
   async updatePosition(
     @CtxUser() user: UserType,
     @Args('updatePositionInput') updatePositionInput: UpdatePositionInput
   ) {
-    const updatePositions = await this.eventPlayerService.update(user.id, updatePositionInput);
-
-    if (updatePositions) {
-    return { ...updatePositions, message: 'Positions are updated successfully.' }
-    } else {
-      return { message: 'Error in position updation' }
+    try {
+      const updatePositions = await this.eventPlayerService.update(user.id, updatePositionInput);
+  
+      if (updatePositions) {
+        return updatePositions
+      } else {
+        return { message: 'Error in position update' }
+      }
+    } catch(err) {
+      console.log(err);
     }
+  }
+
+  @Subscription(() => UpdatePositionType, {
+    name: 'eventPlayerChanges',
+  })
+  eventPlayerChanges() {
+    return this.eventPlayerService.subscribe('eventPlayerChanges');
   }
 }

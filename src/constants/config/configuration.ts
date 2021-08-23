@@ -9,7 +9,7 @@ export default () => ({
       port: parseInt(process.env.DB_PORT, 10) || 28015,
       authKey: '',
       db: process.env.DB_NAME || 'test',
-      tables: ['users', 'places', 'channels', 'persistData', 'postMessages', 'events', 'eventPlayers']
+      tables: ['users', 'places', 'channels', 'persistData', 'postMessages', 'events', 'eventPlayers', 'notifications', 'followers', 'friends', 'notifications']
     },
     TELEGRAM: {
       CONFIG: process.env.NODE_ENV === 'production' ? {

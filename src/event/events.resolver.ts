@@ -157,15 +157,4 @@ export class EventResolver {
             return 'You can\'t delete other\'s event.'
         }
     }
-
-    // @Mutation(() => String)
-    // @UseGuards(GqlAuthGuard)
-    // async leaveJoinEvent(@CtxUser() user: UserType, @Args('LeaveJoinEventInput') LeaveJoinEventInput: LeaveJoinEventInput) {
-    //     // const removedData = await this.eventService.remove(user.id, eventId);
-    //     // if (removedData) {
-    //     //     return 'Event deleted successfully'
-    //     // } else {
-    //     //     return 'You can\'t delete other\'s event.'
-    //     // }
-    // }
 }

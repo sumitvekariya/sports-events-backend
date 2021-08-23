@@ -16,6 +16,9 @@ export class JoinEventType {
 
   @Field({ nullable: true })
   message?: string;
+
+  @Field(() => [String], { nullable: true })
+  positions: [string];
 }
 
 @ObjectType()
@@ -70,4 +73,13 @@ export class UpdatePositionType {
 
   @Field({ nullable: true })
   playerId: string;
+
+  @Field(() => [String], { nullable: true })
+  positions: [string];
+
+  @Field({ nullable: true })
+  eventId: string;
+
+  @Field({ nullable: true })
+  status: string;
 }
