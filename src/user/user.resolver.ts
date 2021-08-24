@@ -76,8 +76,8 @@ export class UserResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => [String])
-  getFollowers(
+  @Query(() => [UserType])
+  getMyFollowers(
     @CtxUser() user: UserType
   ) {
     return this.userService.getFollowers(user.id);
@@ -101,10 +101,33 @@ export class UserResolver {
 
   @UseGuards(GqlAuthGuard)
   @Query(() => [UserType])
-  getFriends(
+  getMyFriends(
     @CtxUser() user: UserType
   ) {
     return this.userService.getFriends(user.id);
   }
 
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [UserType])
+  getFollowedByMe(
+    @CtxUser() user: UserType
+  ) {
+    return this.userService.getMyFollowing(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [UserType])
+  getFriendsWithMe(
+    @CtxUser() user: UserType
+  ) {
+    return this.userService.getFriendsWithMe(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [UserType])
+  getAllUserList(
+    @CtxUser() user: UserType
+  ) {
+    return this.userService.getAllUserList(user.id);
+  }
 }

@@ -179,9 +179,9 @@ export class UserService {
   }
 
   async getFollowers(userId: String) {
-    const followersList = await this.rethinkService.getDataWithFilter('followers', { followerId: userId });
+    const followersList = await this.rethinkService.getUserList('followers', { userId }, 'followerId');
     if (followersList && followersList.length) {
-      return followersList.map(f => f.userId);
+      return followersList
     } else {
       return []
     }
@@ -242,11 +242,53 @@ export class UserService {
   }
 
   async getFriends(userId: String) {
-    const friendList = await this.rethinkService.getFriendList({ userId: userId });
+    // TODO:: Add status filter while fetching friends
+    const friendList = await this.rethinkService.getUserList('friends', { userId: userId }, 'friendId');
     if (friendList && friendList.length) {
       return friendList;
     } else {
       return []
     }
+  }
+
+  async getMyFollowing(userId: String) {
+    const followersList = await this.rethinkService.getUserList('followers', { followerId: userId }, 'userId');
+    if (followersList && followersList.length) {
+      return followersList
+    } else {
+      return []
+    }
+  }
+
+  async getFriendsWithMe(userId: String) {
+    // TODO:: Add status filter while fetching friends
+    const followersList = await this.rethinkService.getUserList('friends', { friendId: userId }, 'userId');
+    if (followersList && followersList.length) {
+      return followersList
+    } else {
+      return []
+    }
+  }
+
+  async getAllUserList(userId: String) {
+    // get my follower List
+    const myFollowersList = await this.rethinkService.getUserList('followers', { userId }, 'followerId');
+
+    // get follower List whom I follow
+    const usersWhomIFollow = await this.rethinkService.getUserList('followers', { followerId:  userId }, 'userId');
+
+    // get My friend list
+    // TODO:: Add status filter while fetching friends
+    const myFriendList = await this.rethinkService.getUserList('friends', { userId: userId }, 'friendId');
+
+    let totalUserList = [...myFollowersList, ...usersWhomIFollow, ...myFriendList];
+    totalUserList = totalUserList.reduce((acc, data) => {
+      const found = acc.findIndex(obj => obj.id === data.id);
+      if (found === -1) {
+        acc.push(data);
+      }
+      return acc
+    }, []);
+    return totalUserList;
   }
 }

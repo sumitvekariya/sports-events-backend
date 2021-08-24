@@ -240,9 +240,6 @@ export class RethinkService {
             .innerJoin(r.table("users"), (friendRow, userRow) => {
                 return friendRow('friendId').eq(userRow('id'))
             })
-            // .withFields(
-            //     {"left": { "id": true, "playerId": true, "eventId": true, "status": true }},{"right": { "firstName": true, "lastName": true, "positions": true }}
-            // )
             .zip()
             .run(this.connection)
             .then(cursor => {
@@ -253,6 +250,30 @@ export class RethinkService {
             })
             .catch(err => {
                 this.logger.error(`Some error when getPlayerList`, err);
+            });
+
+        return result
+    }
+
+    async getUserList(tableName, filter, leftRowId) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table(tableName)
+            .filter(filter)
+            .innerJoin(r.table("users"), (leftRow, userRow) => {
+                return leftRow(leftRowId).eq(userRow('id'))
+            })
+            .zip()
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getDataWithFilter`, err);
             });
 
         return result
