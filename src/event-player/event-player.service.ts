@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { JoinEventInput, UpdatePositionInput } from './dto/event-player.dto';
+import { AddPlayerEventInput, JoinEventInput, UpdatePositionInput } from './dto/event-player.dto';
 
 @Injectable()
 export class EventPlayerService {
@@ -25,8 +25,7 @@ export class EventPlayerService {
           ...JoinEventInput,
           id: uuid,
           playerId: userId,
-          status: true,
-          positions: []
+          status: true
         };
     
         const { inserted, changes } = await this.rethinkService.saveDB(
@@ -37,7 +36,7 @@ export class EventPlayerService {
           // add notification object
           const notificationObj = {
             userId,
-            type: "join_event",
+            notification_type: "join_event",
             isRead: 0, // unread - 0, read - 1,
             eventId: JoinEventInput.eventId,
             ownerId: eventData.owner
@@ -66,7 +65,7 @@ export class EventPlayerService {
         // add notification object
         const notificationObj = {
           userId: playerId,
-          type: "leave_event",
+          notification_type: "leave_event",
           isRead: 0, // unread - 0, read - 1,
           eventId: eventId,
           owner: eventData.owner
@@ -105,4 +104,73 @@ export class EventPlayerService {
     return data
   }
 
+  async addRemovePlayer(userId: string, addPlayerEventInput: AddPlayerEventInput) {
+
+    const allPlayers = await this.rethinkService.getDataWithFilter('eventPlayers', { eventId: addPlayerEventInput.eventId });
+
+    const checkExistingData = allPlayers.find(ap => ap.playerId === addPlayerEventInput.playerId);
+
+    // get event Detail
+    const eventData = await this.rethinkService.getByID('events', addPlayerEventInput.eventId);
+    
+    const userObj = await this.rethinkService.getByID('users', addPlayerEventInput.playerId);
+    if (addPlayerEventInput.isAdd) {
+      // fetch positions
+
+      if (eventData && eventData.playerLimit > allPlayers.length && addPlayerEventInput.isAdd) {
+        if (!checkExistingData) {
+          const uuid = await this.rethinkService.generateUID();
+          const eventPlayerObj = {
+            ...addPlayerEventInput,
+            id: uuid,
+            playerId: addPlayerEventInput.playerId,
+            status: true
+          };
+      
+          const { inserted, changes } = await this.rethinkService.saveDB(
+            'eventPlayers',
+            eventPlayerObj,
+          );
+          if (inserted) {
+            // add notification object
+            const notificationObj = {
+              userId,
+              notification_type: "add_player_event",
+              isRead: 0, // unread - 0, read - 1,
+              eventId: addPlayerEventInput.eventId,
+              ownerId: addPlayerEventInput.playerId
+            };
+            await this.rethinkService.saveDB('notifications', notificationObj);
+  
+            return {...userObj, message: "You have joined the event successfully"};
+          } else {
+            throw Error('Error in join event');
+          }
+        } else {
+          return {...userObj, message: "This user is already added in the event"};
+        }
+      } else {
+        return {...userObj, message: "Event is full. You can't join right now."}
+      }
+    } else {
+      if (!addPlayerEventInput.isAdd && checkExistingData) {
+        // remove player from event
+        const { deleted } = await this.rethinkService.removeDB('eventPlayers', checkExistingData.id);
+        if (deleted) {
+          // add notification object
+          const notificationObj = {
+            userId,
+            notification_type: "remove_player_event",
+            isRead: 0, // unread - 0, read - 1,
+            eventId: addPlayerEventInput.eventId,
+            ownerId: addPlayerEventInput.playerId
+          };
+          await this.rethinkService.saveDB('notifications', notificationObj);
+          return { message: "Player removed successfully from event." }
+        }
+      } else {
+        return { message: "Please add player first." }
+      }
+    }
+  }
 }

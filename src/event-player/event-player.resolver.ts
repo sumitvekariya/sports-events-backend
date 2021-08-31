@@ -3,7 +3,7 @@ import { Query, Args, Mutation, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { UserType } from "src/user/user.type";
-import { JoinEventInput, LeaveEventInput, UpdatePositionInput } from "./dto/event-player.dto";
+import { AddPlayerEventInput, JoinEventInput, LeaveEventInput, UpdatePositionInput } from "./dto/event-player.dto";
 import { EventPlayerService } from "./event-player.service";
 import { JoinEventType, LeaveEventType, EventPlayerList, UpdatePositionType } from "./event-player.type";
 
@@ -18,7 +18,7 @@ export class EventPlayerResolver {
     @Args('joinEventInput') joinEventInput: JoinEventInput
   ) {
     const eventJoin = await this.eventPlayerService.create(user.id, joinEventInput);
-    return {...eventJoin, positions: user.positions};
+    return {...eventJoin, positions: user.positions || []};
   }
 
   @Mutation(() => LeaveEventType)
@@ -71,4 +71,15 @@ export class EventPlayerResolver {
   eventPlayerChanges() {
     return this.eventPlayerService.subscribe('eventPlayerChanges');
   }
+
+  @Mutation(() => UserType)
+  @UseGuards(GqlAuthGuard)
+  async addRemovePlayerToEvent(
+    @CtxUser() user: UserType,
+    @Args('addPlayerEventInput') addPlayerEventInput: AddPlayerEventInput
+  ) {
+    const eventJoin = await this.eventPlayerService.addRemovePlayer(user.id, addPlayerEventInput);
+    return eventJoin;
+  }
+
 }

@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserService } from './user.service';
-import { UserType } from './user.type';
+import { NotificationType, UserType } from './user.type';
 import { AuthLoginInput } from './dto/auth-login.input';
 import { UserTokenType } from './user-token.type';
 import { UseGuards } from '@nestjs/common';
@@ -9,6 +9,7 @@ import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { FollowUnfollowInput } from './dto/follow-unfollow.input';
 import { CtxUser } from './decorators/ctx-user.decorator';
 import { AddRemoveFriendInput } from './dto/add-remove-friend.input';
+import { AcceptDeclineRequestInput } from './dto/accept-declint-request.intput';
 
 @Resolver((of) => UserType)
 export class UserResolver {
@@ -129,5 +130,32 @@ export class UserResolver {
     @CtxUser() user: UserType
   ) {
     return this.userService.getAllUserList(user.id);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [NotificationType])
+  getAllNotifications(
+    @CtxUser() user: UserType,
+    @Args('isRead') isRead: number
+  ) {
+    isRead = isRead || 0;
+    return this.userService.getNotificationList(user.id, isRead);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => String)
+  approveDeclineRequest(
+    @CtxUser() user: UserType,
+    @Args('acceptDeclineRequestInput') acceptDeclineRequestInput: AcceptDeclineRequestInput
+  ) {
+    return this.userService.approveDeclineRequest(user.id, acceptDeclineRequestInput);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => String)
+  markReadAllNotifications(
+    @CtxUser() user: UserType,
+  ) {
+    return this.userService.markReadAllNotifications(user.id);
   }
 }

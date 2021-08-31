@@ -1,15 +1,16 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { IsEnum, IsOptional } from 'class-validator';
+import { EventType } from 'src/event/event.type';
 
 @ObjectType('User')
 export class UserType {
-  @Field()
+  @Field({ nullable: true })
   id: string;
 
-  @Field()
+  @Field({ nullable: true })
   createdAt: Date;
 
-  @Field()
+  @Field({ nullable: true })
   updatedAt: Date; // Last Activity State
 
   @Field({ nullable: true })
@@ -24,15 +25,15 @@ export class UserType {
   @IsOptional()
   password?: string;
 
-  @Field({ defaultValue: 'N/A' })
+  @Field({ defaultValue: 'N/A', nullable: true })
   @IsOptional()
   nickName?: string;
 
-  @Field({ defaultValue: '' })
+  @Field({ defaultValue: '', nullable: true })
   @IsOptional()
   firstName?: string;
 
-  @Field({ defaultValue: '' })
+  @Field({ defaultValue: '', nullable: true })
   @IsOptional()
   lastName?: string;
 
@@ -72,4 +73,51 @@ export class UserType {
   @Field(() => [String], { nullable: true })
   @IsOptional()
   positions?: [string];
+
+  @Field({ nullable: true })
+  @IsOptional()
+  message?: string;
+}
+
+
+@ObjectType()
+export class NotificationType {
+  @Field({ nullable: true })
+  id: string;
+
+  @Field({ nullable: true })
+  type: string;
+
+  @Field({ nullable: true })
+  ownerId: string;
+
+  @Field({ nullable: true })
+  userId: string;
+
+  @Field()
+  message: string;
+
+  @Field({ nullable: true } )
+  title: string;
+
+  @Field({ nullable: true } )
+  description: string;
+
+  @Field({ nullable: true } )
+  playerLimit: string;
+
+  @Field({ nullable: true } )
+  teamSize: string;
+  
+  @Field({ nullable: true } )
+  firstName: string;
+
+  @Field({ nullable: true } )
+  lastName: string;
+
+  @Field({ nullable: true } )
+  isRead: number;
+
+  @Field({ nullable: true } )
+  notification_type: string
 }

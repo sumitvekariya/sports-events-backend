@@ -12,6 +12,7 @@ import { JwtDto } from './dto/jwt.dto';
 import { ConfigService } from '@nestjs/config';
 import { FollowUnfollowInput } from './dto/follow-unfollow.input';
 import { AddRemoveFriendInput } from './dto/add-remove-friend.input';
+import { AcceptDeclineRequestInput } from './dto/accept-declint-request.intput';
 
 @Injectable()
 export class UserService {
@@ -152,8 +153,9 @@ export class UserService {
       // add notification object
       const notificationObj = {
         userId: followerId,
-        type: "follow_user",
+        notification_type: "follow_user",
         isRead: 0, // unread - 0, read - 1,
+        eventId: "",
         ownerId: followUserInput.userId
       };
       await this.rethinkService.saveDB('notifications', notificationObj);
@@ -165,8 +167,9 @@ export class UserService {
          // add notification object
         const notificationObj = {
           userId: followerId,
-          type: "unfollow_user",
+          notification_type: "unfollow_user",
           isRead: 0, // unread - 0, read - 1,
+          eventId: "",
           ownerId: followUserInput.userId
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
@@ -215,8 +218,9 @@ export class UserService {
       // add notification object
       const notificationObj = {
         userId: friendId,
-        type: "add_friend",
+        notification_type: "add_friend",
         isRead: 0, // unread - 0, read - 1,
+        eventId: "",
         ownerId: addRemoveFriendInput.userId
       };
       await this.rethinkService.saveDB('notifications', notificationObj);
@@ -228,8 +232,9 @@ export class UserService {
         // add notification object
         const notificationObj = {
           userId: friendId,
-          type: "remove_friend",
+          notification_type: "remove_friend",
           isRead: 0, // unread - 0, read - 1,
+          eventId: "",
           ownerId: addRemoveFriendInput.userId
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
@@ -279,7 +284,7 @@ export class UserService {
 
     // get My friend list
     // TODO:: Add status filter while fetching friends
-    const myFriendList = await this.rethinkService.getUserList('friends', { userId: userId }, 'friendId');
+    const myFriendList = await this.rethinkService.getUserList('friends', { userId: userId, status: 'accepted' }, 'friendId');
 
     let totalUserList = [...myFollowersList, ...usersWhomIFollow, ...myFriendList];
     totalUserList = totalUserList.reduce((acc, data) => {
@@ -290,5 +295,93 @@ export class UserService {
       return acc
     }, []);
     return totalUserList;
+  }
+
+  async getNotificationList(ownerId: string, isRead: number) {
+    let notifications;
+    if (isRead) {
+      notifications = await this.rethinkService.getNotificationList('notifications', { ownerId });
+    } else {
+      notifications = await this.rethinkService.getNotificationList('notifications', { ownerId, isRead });
+    }
+    if (notifications && notifications.length) {
+      for (let n of notifications) {
+        switch(n.notification_type) {
+          case 'add_friend':
+            n.message = `${n.firstName} ${n.lastName} has sent a friend request`;
+            n.title = `Friend Request`;
+            break;
+          case 'follow_user':
+            n.message = `${n.firstName} ${n.lastName} has started following you`;
+            n.title = `User is Following`;
+            break;
+          case 'join_event':
+            n.message = `${n.firstName} ${n.lastName} joined the event: ${n?.description}`;
+            n.title = `Join Event`;
+            break;
+          case 'add_player_event':
+            n.message = `you are added into the event: ${n.description}`;
+            n.title = `Player added in the event`;
+            break;
+          case 'remove_player_event':
+            n.message = `you are removed from the event: ${n.description}`;
+            n.title = `Player removed in the event`;
+            break;
+          case 'remove_friend':
+              n.message = `${n.firstName} ${n.lastName} removed you as a friend`;
+              n.title = `Remove friend request`;
+              break;
+          case 'unfollow_user':
+            n.message = `${n.firstName} ${n.lastName} started unfollowing you`;
+            n.title = `User unfollowed`;
+            break;
+          case 'friend_request_accept':
+            n.message = `${n.firstName} ${n.lastName} has accepted your friend request`;
+            n.title = `Friend Request accepted`;
+          case 'friend_request_decline':
+            n.message = `${n.firstName} ${n.lastName} has declined your friend request`;
+            n.title = `Friend Request declined`;
+            break;
+          default:
+            n.message = ``;
+            break;
+        }
+      }
+    }
+    return notifications;
+  }
+
+  async approveDeclineRequest(userId: string, acceptDeclineRequestInput: AcceptDeclineRequestInput) {
+    const [foundData] = await this.rethinkService.getDataWithFilter('friends', { friendId: acceptDeclineRequestInput.userId , userId });
+
+    const status = acceptDeclineRequestInput?.isAccept ? 'accepted' : 'declined'
+    if(foundData) {
+      const { replaced, changes } = await this.rethinkService.updateDB(
+        'friends',
+        foundData.id,
+        { status },
+      );
+      if (replaced) {
+        const notificationObj = {
+          userId: userId,
+          notification_type: acceptDeclineRequestInput?.isAccept ? "friend_request_accept" : "friend_request_decline",
+          isRead: 0,
+          eventId: "",
+          ownerId: acceptDeclineRequestInput.userId
+      };
+
+      await this.rethinkService.saveDB('notifications', notificationObj);
+        return `Friend request ${status}`;
+      } else {
+        throw Error('Error while updating a user');
+      }
+    } else {
+      return 'First send friend request'
+    }
+  }
+
+  async markReadAllNotifications(userId: string) {
+    await this.rethinkService.updateAllRecords('notifications', { isRead: 1 });
+    return 'All the nofitications are read.'
   }
 }

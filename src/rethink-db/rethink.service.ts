@@ -278,4 +278,48 @@ export class RethinkService {
 
         return result
     }
+
+    async getNotificationList(tableName, filter) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table(tableName)
+            .filter(filter)
+            .outerJoin(r.table("users"), (leftRow, userRow) => {
+                return leftRow("userId").eq(userRow('id'))
+            }).withFields({"left": { "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true }},{"right": { "firstName": true, "lastName": true }})
+            .zip()
+            .outerJoin(r.table('events'), function(notRow, eventRow) {
+                return notRow('eventId').eq(eventRow('id'))
+            })
+            .zip()
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getDataWithFilter`, err);
+            });
+
+        return result
+    }
+
+    async updateAllRecords(tableName, data) {
+        data = {
+            ...data,
+            updatedAt: rethinkDB.now()
+        }
+        let result = await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .update(data, { returnChanges: true })
+            .run(this.connection)
+            .catch(err => {
+                this.logger.error(`Some error when updating ${data} to table ${tableName} in DB`, err);
+            });
+
+        return result;
+    }
 }
