@@ -136,10 +136,13 @@ export class UserResolver {
   @Query(() => [NotificationType])
   getAllNotifications(
     @CtxUser() user: UserType,
-    @Args('isRead') isRead: number
+    @Args('isRead') isRead: number,
+    @Args('userId') userId: string
   ) {
     isRead = isRead || 0;
-    return this.userService.getNotificationList(user.id, isRead);
+    userId = userId || user.id;
+
+    return this.userService.getNotificationList(userId, isRead);
   }
 
   @UseGuards(GqlAuthGuard)
@@ -158,4 +161,29 @@ export class UserResolver {
   ) {
     return this.userService.markReadAllNotifications(user.id);
   }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [UserType])
+  getFollowingByUserId(
+    @CtxUser() user: UserType,
+    @Args('userId') userId: String
+  ) {
+    return this.userService.getMyFollowing(userId);
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Query(() => [UserType])
+  getFollowersByUserId(
+    @CtxUser() user: UserType,
+    @Args('userId') userId: String
+  ) {
+    return this.userService.getFollowers(userId);
+  }
+
+  // @Subscription(() => NotificationType, {
+  //   name: 'eventPlayerChanges',
+  // })
+  // eventPlayerChanges() {
+  //   return this.eventPlayerService.subscribe('eventPlayerChanges');
+  // }
 }

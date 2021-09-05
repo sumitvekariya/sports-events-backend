@@ -195,13 +195,13 @@ export class UserService {
     return data
   }
 
-  async addRemoveFriendInput(friendId: string, addRemoveFriendInput: AddRemoveFriendInput) {
-    if (friendId === addRemoveFriendInput.userId) {
-      return "You can't follow yourself."
+  async addRemoveFriendInput(userId: string, addRemoveFriendInput: AddRemoveFriendInput) {
+    if (userId === addRemoveFriendInput.userId) {
+      return "You can't add yourself in friend."
     }
 
     // find if already friend or not
-    const [existingFollower] = await this.rethinkService.getDataWithFilter('friends', { friendId , userId: addRemoveFriendInput.userId });
+    const [existingFollower] = await this.rethinkService.getDataWithFilter('friends', { userId , friendId: addRemoveFriendInput.userId });
 
     if (existingFollower && addRemoveFriendInput.addFriend) {
       return "You are already friend of this user."
@@ -209,15 +209,15 @@ export class UserService {
 
     if (!existingFollower && addRemoveFriendInput.addFriend) {
       const objToSave = {
-        friendId,
-        userId: addRemoveFriendInput.userId,
+        friendId: addRemoveFriendInput.userId,
+        userId,
         status: "pending"
       }
 
       await this.rethinkService.saveDB('friends', objToSave);
       // add notification object
       const notificationObj = {
-        userId: friendId,
+        userId,
         notification_type: "add_friend",
         isRead: 0, // unread - 0, read - 1,
         eventId: "",
@@ -231,7 +231,7 @@ export class UserService {
         await this.rethinkService.removeDB('friends', existingFollower.id);
         // add notification object
         const notificationObj = {
-          userId: friendId,
+          userId,
           notification_type: "remove_friend",
           isRead: 0, // unread - 0, read - 1,
           eventId: "",
@@ -319,6 +319,10 @@ export class UserService {
             n.message = `${n.firstName} ${n.lastName} joined the event: ${n?.description}`;
             n.title = `Join Event`;
             break;
+          case 'leave_event':
+            n.message = `${n.firstName} ${n.lastName} left the event: ${n?.description}`;
+            n.title = `Left Event`;
+            break;
           case 'add_player_event':
             n.message = `you are added into the event: ${n.description}`;
             n.title = `Player added in the event`;
@@ -342,6 +346,18 @@ export class UserService {
             n.message = `${n.firstName} ${n.lastName} has declined your friend request`;
             n.title = `Friend Request declined`;
             break;
+          case 'invite_event':
+            n.message = `${n.firstName} ${n.lastName} has invited you to the event`;
+            n.title = `Invite to Event`;
+            break;
+          case 'accept_invitation':
+            n.message = `${n.firstName} ${n.lastName} has accepted invitation`;
+            n.title = `Invitation accepted`;
+            break;
+          case 'decline_invitation':
+            n.message = `${n.firstName} ${n.lastName} has declined invitation`;
+            n.title = `Invitation declined`;
+            break;
           default:
             n.message = ``;
             break;
@@ -352,7 +368,7 @@ export class UserService {
   }
 
   async approveDeclineRequest(userId: string, acceptDeclineRequestInput: AcceptDeclineRequestInput) {
-    const [foundData] = await this.rethinkService.getDataWithFilter('friends', { friendId: acceptDeclineRequestInput.userId , userId });
+    const [foundData] = await this.rethinkService.getDataWithFilter('friends', { friendId: userId  , userId: acceptDeclineRequestInput.userId });
 
     const status = acceptDeclineRequestInput?.isAccept ? 'accepted' : 'declined'
     if(foundData) {
@@ -364,7 +380,7 @@ export class UserService {
       if (replaced) {
         const notificationObj = {
           userId: userId,
-          notification_type: acceptDeclineRequestInput?.isAccept ? "friend_request_accept" : "friend_request_decline",
+          notification_type: +acceptDeclineRequestInput?.isAccept ? "friend_request_accept" : "friend_request_decline",
           isRead: 0,
           eventId: "",
           ownerId: acceptDeclineRequestInput.userId

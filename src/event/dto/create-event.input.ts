@@ -198,3 +198,20 @@ export class LeaveJoinEventInput {
   @Field()
   isJoin: string;
 }
+@InputType()
+export class GetEventByUserInput {
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  skip: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  limit!: number;
+
+  @IsNotEmpty()
+  @IsString()
+  @Field()
+  userId: string;
+}

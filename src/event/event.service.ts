@@ -15,7 +15,9 @@ export class EventService {
       const event = {
         ...CreateEventInput,
         id: uuid,
-        owner: userId
+        owner: userId,
+        lat: "48.3794",
+        long: "31.1656"
       };
 
       const { inserted, changes } = await this.rethinkService.saveDB(

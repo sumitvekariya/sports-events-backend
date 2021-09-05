@@ -77,6 +77,14 @@ export class UserType {
   @Field({ nullable: true })
   @IsOptional()
   message?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  playerId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  friendId?: string;
 }
 
 
@@ -120,4 +128,13 @@ export class NotificationType {
 
   @Field({ nullable: true } )
   notification_type: string
+
+  @Field({ nullable: true } )
+  startTime: string
+
+  @Field({ nullable: true } )
+  endTime: string
+
+  @Field({ nullable: true } )
+  eventId: string
 }

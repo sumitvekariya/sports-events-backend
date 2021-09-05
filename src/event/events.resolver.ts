@@ -5,7 +5,7 @@ import { Roles } from "src/user/decorators/roles.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { RolesGuard } from "src/user/guards/role-auth.guard";
 import { UserType } from "src/user/user.type";
-import { CreateEventInput, PaginationInputType, UpdateEventInput, GetEventDetailInput, LeaveJoinEventInput } from "./dto/create-event.input";
+import { CreateEventInput, PaginationInputType, UpdateEventInput, GetEventDetailInput, LeaveJoinEventInput, GetEventByUserInput } from "./dto/create-event.input";
 import { EventService } from "./event.service";
 import { EventType, EventTypeWithCount } from "./event.type";
 
@@ -156,5 +156,21 @@ export class EventResolver {
         } else {
             return 'You can\'t delete other\'s event.'
         }
+    }
+
+    @Query(() => EventTypeWithCount)
+    @UseGuards(GqlAuthGuard)
+    async getEventByUserId(
+        @CtxUser() user: UserType,
+        @Args('getEventByUserInput') getEventByUserInput: GetEventByUserInput
+    ) {
+        const skip = getEventByUserInput.skip || 1;
+        const limit = getEventByUserInput.limit || 10;
+
+        let filter = {
+            owner: getEventByUserInput.userId
+        };
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, null);
+        return { totalCount: data['totalCount'], result: data['result'] }
     }
 }

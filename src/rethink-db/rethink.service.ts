@@ -322,4 +322,92 @@ export class RethinkService {
 
         return result;
     }
+
+    async getUsersEnrolledInEvent(tableName, filter, filter1 = {}, leftRowId) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table(tableName)
+            .filter(filter)
+            .innerJoin(r.table("users"), (friendRow, userRow) => {
+                return friendRow(leftRowId).eq(userRow('id'))
+            })
+            .zip()
+            .innerJoin(r.table("eventPlayers"), (eventRow, epRow) => {
+                return eventRow(leftRowId).eq(epRow('playerId'))
+            })
+            .zip()
+            .filter(filter1)
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getUsersEnrolledInEvent`, err);
+            });
+
+        return result
+    }
+    
+    async removeDataWithFilter(tableName, filter) {
+        let result = await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .filter(filter)
+            .delete({returnChanges: true})
+            .run(this.connection)
+            .catch(err => {
+                this.logger.error(`Some error when deleting in table ${tableName} in DB`, err);
+            });
+
+        return result
+    }
+
+    // async getEventPlayerChangesSubscription(subAction, tableName, filter: any = {}) {
+    //     const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+    //     let result;
+    //     await r
+    //     .table(tableName)
+    //     .filter(filter)
+        
+    //     // .innerJoin(r.table("users"), (eventRow, userRow) => {
+    //     //     return eventRow('playerId').eq(userRow('id'))
+    //     // })
+    //     // .map(function(change) {
+    //     //     console.log("this is chage ", change('new_val'));
+    //     //     return r.table('users').get("123") as any
+    //     // })
+    //     .changes()
+    //     .run(this.connection)
+    //     .then(async (cursor) => {
+    //         // cursor.toArray(function(err, res) {
+    //         //     if (err) throw err;
+    //         //     console.log("resutl is ", res);
+    //         //     result = res;
+    //         // })
+    //         const value = await cursor.next()
+    //         console.log("12 => ", cursor)
+    //         result = value
+    //     })
+    //     .catch(err => {
+    //         this.logger.error(`Some error when getPlayerList`, err);
+    //     });
+
+    //     // return new RethinkIterator(
+    //     //     subAction,
+    //     //     r
+    //     //     .table(tableName)
+    //     //     .map(function(change) {
+    //     //         console.log("this is chage ", change('new_val'));
+    //     //         return r.table('users').get("83cf18b0-658c-4bc6-8ce6-ae4df59faeb5") as any
+    //     //     })
+    //     //     .filter(filter),
+    //     //     // .innerJoin(r.table("users"), (eventRow, userRow) => {
+    //     //     //     return eventRow('playerId').eq(userRow('id'))
+    //     //     // }),
+    //     //     this.connection,
+    //     // );
+    // }
 }

@@ -40,3 +40,41 @@ export class AddPlayerEventInput {
   @Field()
   isAdd: number;
 }
+
+@InputType()
+export class InviteUninvitePlayersInput {
+  @IsNotEmpty()
+  @IsString()
+  @Field()
+  eventId: string;
+
+  @IsNotEmpty()
+  @Field(() => [Users])
+  users: [Users];
+}
+
+@InputType()
+export class Users {
+  @IsNotEmpty()
+  @IsString()
+  @Field()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  isInvite: number;
+}
+
+@InputType()
+export class AcceptDeclineInvitationInput {
+  @IsNotEmpty()
+  @IsString()
+  @Field()
+  eventId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Field()
+  isAccept: number;
+}

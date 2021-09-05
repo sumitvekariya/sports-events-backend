@@ -3,7 +3,7 @@ import { Query, Args, Mutation, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
 import { UserType } from "src/user/user.type";
-import { AddPlayerEventInput, JoinEventInput, LeaveEventInput, UpdatePositionInput } from "./dto/event-player.dto";
+import { AcceptDeclineInvitationInput, AddPlayerEventInput, InviteUninvitePlayersInput, JoinEventInput, LeaveEventInput, UpdatePositionInput } from "./dto/event-player.dto";
 import { EventPlayerService } from "./event-player.service";
 import { JoinEventType, LeaveEventType, EventPlayerList, UpdatePositionType } from "./event-player.type";
 
@@ -82,4 +82,33 @@ export class EventPlayerResolver {
     return eventJoin;
   }
 
+  @Query(() => [UserType])
+  @UseGuards(GqlAuthGuard)
+  async getFriendsEnrolledInEvent(
+      @CtxUser() user: UserType,
+      @Args('eventId') eventId: string
+  ) {
+      const result = await this.eventPlayerService.getFriendsEnrolledInEvent(user.id, eventId);
+      return result
+  }
+
+  @Mutation(() => String)
+  @UseGuards(GqlAuthGuard)
+  async inviteUninvitePlayers(
+      @CtxUser() user: UserType,
+      @Args('inviteUninvitePlayersInput') inviteUninvitePlayersInput: InviteUninvitePlayersInput
+  ) {
+      const result = await this.eventPlayerService.inviteUninvitePlayers(user.id, inviteUninvitePlayersInput);
+      return result
+  }
+
+  @Mutation(() => String)
+  @UseGuards(GqlAuthGuard)
+  async acceptDeclineInvitation(
+      @CtxUser() user: UserType,
+      @Args('acceptDeclineInvitationInput') acceptDeclineInvitationInput: AcceptDeclineInvitationInput
+  ) {
+      const result = await this.eventPlayerService.acceptDeclineInvitation(user.id, acceptDeclineInvitationInput);
+      return result
+  }
 }

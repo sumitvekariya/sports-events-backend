@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { AddPlayerEventInput, JoinEventInput, UpdatePositionInput } from './dto/event-player.dto';
+import { AcceptDeclineInvitationInput, AddPlayerEventInput, InviteUninvitePlayersInput, JoinEventInput, UpdatePositionInput } from './dto/event-player.dto';
 
 @Injectable()
 export class EventPlayerService {
@@ -68,7 +68,7 @@ export class EventPlayerService {
           notification_type: "leave_event",
           isRead: 0, // unread - 0, read - 1,
           eventId: eventId,
-          owner: eventData.owner
+          ownerId: eventData.owner
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -171,6 +171,103 @@ export class EventPlayerService {
       } else {
         return { message: "Please add player first." }
       }
+    }
+  }
+
+  async getFriendsEnrolledInEvent(userId: string, eventId: string) {
+    const data = await this.rethinkService.getUsersEnrolledInEvent('friends', { userId }, { eventId, status: true }, 'friendId');
+    return data;
+  }
+
+  async inviteUninvitePlayers(userId: string, inviteUninvitePlayersInput: InviteUninvitePlayersInput) {
+      if (inviteUninvitePlayersInput.users && inviteUninvitePlayersInput.users.length) {
+        for (let user of inviteUninvitePlayersInput.users) {
+          if (user.isInvite) {
+            // check existing invitation
+            const existingNotification = await this.rethinkService.getDataWithFilter('notifications', { eventId: inviteUninvitePlayersInput.eventId, notification_type: "invite_event", ownerId: user.userId });
+            if (existingNotification && existingNotification.length === 0) {
+              // Add notifications
+              const notificationObj = {
+                userId,
+                notification_type: "invite_event",
+                isRead: 0, // unread - 0, read - 1,
+                eventId: inviteUninvitePlayersInput.eventId,
+                ownerId: user.userId
+              };
+              await this.rethinkService.saveDB('notifications', notificationObj);
+            }
+          } else {
+            await this.rethinkService.removeDataWithFilter('notifications', { ownerId: user.userId, userId, eventId: inviteUninvitePlayersInput.eventId, notification_type: "invite_event" });
+          }
+        }
+      }
+    return 'Invitation updated succesfully.'
+  }
+
+  async acceptDeclineInvitation(userId: string, acceptDeclineInvitationInput: AcceptDeclineInvitationInput) {
+    try {
+      // check already accepted
+      const allPlayers = await this.rethinkService.getDataWithFilter('eventPlayers', { eventId: acceptDeclineInvitationInput.eventId });
+  
+      const checkExistingData = allPlayers.find(ap => ap.playerId === userId);
+  
+      const eventData = await this.rethinkService.getByID('events', acceptDeclineInvitationInput.eventId);
+  
+      if (eventData && eventData.playerLimit > allPlayers.length) {
+        if (!checkExistingData) {
+          if (acceptDeclineInvitationInput.isAccept) {
+            // Entry in event player table
+            const uuid = await this.rethinkService.generateUID();
+            const eventPlayerObj = {
+              id: uuid,
+              playerId: userId,
+              eventId: acceptDeclineInvitationInput.eventId,
+              status: true
+            };
+
+            const { inserted, changes } = await this.rethinkService.saveDB(
+              'eventPlayers',
+              eventPlayerObj,
+            );
+             // TODO::  Send notification to owner of the event
+              
+             if (inserted) {
+              const notificationObj = {
+                userId,
+                notification_type: "accept_invitation",
+                isRead: 0, // unread - 0, read - 1,
+                eventId: acceptDeclineInvitationInput.eventId,
+                ownerId: eventData.owner
+              };
+              await this.rethinkService.saveDB('notifications', notificationObj);
+            } else {
+              throw Error('Error in join event');
+            }
+           } else {
+             // delete notification object
+             await this.rethinkService.removeDataWithFilter('notifications', { ownerId: userId, eventId: acceptDeclineInvitationInput.eventId, notification_type: "invite_event" });
+             
+             // TODO::  Send notification to owner of the event
+             const notificationObj = {
+              userId,
+              notification_type: "decline_invitation",
+              isRead: 0, // unread - 0, read - 1,
+              eventId: acceptDeclineInvitationInput.eventId,
+              ownerId: eventData.owner
+            };
+            await this.rethinkService.saveDB('notifications', notificationObj);
+           }
+        } else {
+          throw new Error('You have alredy accepted invitation')
+        }
+
+        return 'Invitation updated successfully.';
+
+      } else {
+        throw new Error('Event is full. You can\'t join right now.');
+      }
+    } catch (err) {
+      throw err
     }
   }
 }
