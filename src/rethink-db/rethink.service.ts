@@ -187,8 +187,9 @@ export class RethinkService {
             .filter((doc) => {
                 if (betweenRange && betweenRange.start && betweenRange.end) {
                     return doc("startDate").ge(betweenRange.start) && (doc("endDate").le(betweenRange.end))
+                } else {
+                    return {};
                 }
-                return {};
             })
             .run(this.connection)
             .then(cursor => {

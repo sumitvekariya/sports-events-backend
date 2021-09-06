@@ -104,6 +104,7 @@ export class EventResolver {
         if (PaginationInputType.startDate && PaginationInputType.endDate) {
             betweenRange['start'] = PaginationInputType.startDate === 0 ? 0 : new Date(PaginationInputType.startDate);
             betweenRange['end'] = PaginationInputType.endDate === 0 ? 0 : new Date(PaginationInputType.endDate);
+            delete filter['startDate'];
         }
         
         const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);

@@ -32,8 +32,15 @@ export class EventService {
     }
     
     async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any): Promise<{ result: EventType, totalCount: number}> {
-      const result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
+      let result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
       const totalCount = await this.rethinkService.getTotalCount('events', filter);
+
+      // TODO:: query is not working that's why. filter based on between ragne
+      if (betweenRange && betweenRange.start && betweenRange.end) {
+        result = result.filter((event) => {
+          return event.startDate >= betweenRange.start && event.endDate && event.endDate <= betweenRange.end
+        })
+      }
       return { result, totalCount };
     }
 

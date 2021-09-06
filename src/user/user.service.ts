@@ -342,6 +342,7 @@ export class UserService {
           case 'friend_request_accept':
             n.message = `${n.firstName} ${n.lastName} has accepted your friend request`;
             n.title = `Friend Request accepted`;
+            break;
           case 'friend_request_decline':
             n.message = `${n.firstName} ${n.lastName} has declined your friend request`;
             n.title = `Friend Request declined`;
