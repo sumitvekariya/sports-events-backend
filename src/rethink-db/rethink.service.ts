@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as rethinkDB from 'rethinkdb';
 import { ConfigService } from '@nestjs/config';
 import { RethinkIterator } from './rethink-iterator';
-
+const $$asyncIterator = require("iterall").$$asyncIterator;
 // export class RethinkResponse {
 //     inserted: number;
 //     replaced: number;
@@ -93,6 +93,7 @@ export class RethinkService {
             .table(tableName)
             .filter(filter),
             this.connection,
+            this.r
         );
     }
 
@@ -288,7 +289,7 @@ export class RethinkService {
             .filter(filter)
             .outerJoin(r.table("users"), (leftRow, userRow) => {
                 return leftRow("userId").eq(userRow('id'))
-            }).withFields({"left": { "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true }},{"right": { "firstName": true, "lastName": true }})
+            }).withFields({"left": { "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true }},{"right": { "firstName": true, "lastName": true }})
             .zip()
             .outerJoin(r.table('events'), function(notRow, eventRow) {
                 return notRow('eventId').eq(eventRow('id'))
@@ -366,49 +367,44 @@ export class RethinkService {
         return result
     }
 
-    // async getEventPlayerChangesSubscription(subAction, tableName, filter: any = {}) {
-    //     const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
-    //     let result;
-    //     await r
-    //     .table(tableName)
-    //     .filter(filter)
-        
-    //     // .innerJoin(r.table("users"), (eventRow, userRow) => {
-    //     //     return eventRow('playerId').eq(userRow('id'))
-    //     // })
-    //     // .map(function(change) {
-    //     //     console.log("this is chage ", change('new_val'));
-    //     //     return r.table('users').get("123") as any
-    //     // })
-    //     .changes()
-    //     .run(this.connection)
-    //     .then(async (cursor) => {
-    //         // cursor.toArray(function(err, res) {
-    //         //     if (err) throw err;
-    //         //     console.log("resutl is ", res);
-    //         //     result = res;
-    //         // })
-    //         const value = await cursor.next()
-    //         console.log("12 => ", cursor)
-    //         result = value
-    //     })
-    //     .catch(err => {
-    //         this.logger.error(`Some error when getPlayerList`, err);
-    //     });
+    async updateWithFilter(tableName, filter, data) {
+        data = {
+            ...data,
+            updatedAt: rethinkDB.now()
+        }
+        let result = await rethinkDB.db(this.config.get<string>('rethinkdb.db'))
+            .table(tableName)
+            .filter(filter)
+            .update(data, { returnChanges: true })
+            .run(this.connection)
+            .catch(err => {
+                this.logger.error(`Some error when updating ${data} to table ${tableName} in DB`, err);
+            });
 
-    //     // return new RethinkIterator(
-    //     //     subAction,
-    //     //     r
-    //     //     .table(tableName)
-    //     //     .map(function(change) {
-    //     //         console.log("this is chage ", change('new_val'));
-    //     //         return r.table('users').get("83cf18b0-658c-4bc6-8ce6-ae4df59faeb5") as any
-    //     //     })
-    //     //     .filter(filter),
-    //     //     // .innerJoin(r.table("users"), (eventRow, userRow) => {
-    //     //     //     return eventRow('playerId').eq(userRow('id'))
-    //     //     // }),
-    //     //     this.connection,
-    //     // );
-    // }
+        return result;
+    }
+
+    async getUserEnrolledEvents(tableName, filter) {
+        let result;
+        const r = rethinkDB.db(this.config.get<string>('rethinkdb.db'));
+        await r
+            .table(tableName)
+            .filter(filter)
+            .innerJoin(r.table("events"), (epRow, eventRow) => {
+                return epRow("eventId").eq(eventRow('id'))
+            })
+            .zip()
+            .run(this.connection)
+            .then(cursor => {
+                cursor.toArray(function(err, res) {
+                    if (err) throw err;
+                    result = res;
+                })
+            })
+            .catch(err => {
+                this.logger.error(`Some error when getUserEnrolledEvents`, err);
+            });
+
+        return result
+    }
 }

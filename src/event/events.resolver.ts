@@ -107,7 +107,7 @@ export class EventResolver {
             delete filter['startDate'];
         }
         
-        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange, user.id);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -171,7 +171,7 @@ export class EventResolver {
         let filter = {
             owner: getEventByUserInput.userId
         };
-        const data = await this.eventService.getAllWithCount(filter, skip, limit, null);
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, null, getEventByUserInput.userId);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 }

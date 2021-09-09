@@ -156,7 +156,8 @@ export class UserService {
         notification_type: "follow_user",
         isRead: 0, // unread - 0, read - 1,
         eventId: "",
-        ownerId: followUserInput.userId
+        ownerId: followUserInput.userId,
+        actionTaken: 0
       };
       await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -170,7 +171,8 @@ export class UserService {
           notification_type: "unfollow_user",
           isRead: 0, // unread - 0, read - 1,
           eventId: "",
-          ownerId: followUserInput.userId
+          ownerId: followUserInput.userId,
+          actionTaken: 0
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -190,8 +192,8 @@ export class UserService {
     }
   }
 
-  async subscribe(subAction: string) {
-    const data = await this.rethinkService.getSubscription(subAction, 'users');
+  async subscribe(subAction: string, tableName: string) {
+    const data = await this.rethinkService.getSubscription(subAction, tableName);
     return data
   }
 
@@ -221,7 +223,8 @@ export class UserService {
         notification_type: "add_friend",
         isRead: 0, // unread - 0, read - 1,
         eventId: "",
-        ownerId: addRemoveFriendInput.userId
+        ownerId: addRemoveFriendInput.userId,
+        actionTaken: 0
       };
       await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -235,7 +238,8 @@ export class UserService {
           notification_type: "remove_friend",
           isRead: 0, // unread - 0, read - 1,
           eventId: "",
-          ownerId: addRemoveFriendInput.userId
+          ownerId: addRemoveFriendInput.userId,
+          actionTaken: 0
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
         return "You unfriend this user";
@@ -379,12 +383,22 @@ export class UserService {
         { status },
       );
       if (replaced) {
+        // update action taken obj
+
+        const where = {
+          notification_type: 'add_friend',
+          ownerId: userId,
+          userId: acceptDeclineRequestInput.userId
+        };
+        await this.rethinkService.updateWithFilter('notifications', where, { actionTaken: 1 });
+
         const notificationObj = {
           userId: userId,
           notification_type: +acceptDeclineRequestInput?.isAccept ? "friend_request_accept" : "friend_request_decline",
           isRead: 0,
           eventId: "",
-          ownerId: acceptDeclineRequestInput.userId
+          ownerId: acceptDeclineRequestInput.userId,
+          actionTaken: 0
       };
 
       await this.rethinkService.saveDB('notifications', notificationObj);

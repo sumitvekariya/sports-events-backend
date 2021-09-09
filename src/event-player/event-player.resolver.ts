@@ -2,7 +2,7 @@ import { UseGuards } from "@nestjs/common";
 import { Query, Args, Mutation, Resolver, Subscription } from "@nestjs/graphql";
 import { CtxUser } from "src/user/decorators/ctx-user.decorator";
 import { GqlAuthGuard } from "src/user/guards/gql-auth.guard";
-import { UserType } from "src/user/user.type";
+import { EventPlayerChangeOutput, UserType } from "src/user/user.type";
 import { AcceptDeclineInvitationInput, AddPlayerEventInput, InviteUninvitePlayersInput, JoinEventInput, LeaveEventInput, UpdatePositionInput } from "./dto/event-player.dto";
 import { EventPlayerService } from "./event-player.service";
 import { JoinEventType, LeaveEventType, EventPlayerList, UpdatePositionType } from "./event-player.type";
@@ -65,7 +65,7 @@ export class EventPlayerResolver {
     }
   }
 
-  @Subscription(() => UpdatePositionType, {
+  @Subscription(() => EventPlayerChangeOutput, {
     name: 'eventPlayerChanges',
   })
   eventPlayerChanges() {

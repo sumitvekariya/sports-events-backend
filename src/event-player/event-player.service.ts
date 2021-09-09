@@ -39,7 +39,8 @@ export class EventPlayerService {
             notification_type: "join_event",
             isRead: 0, // unread - 0, read - 1,
             eventId: JoinEventInput.eventId,
-            ownerId: eventData.owner
+            ownerId: eventData.owner,
+            actionTaken: 0
           };
           await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -68,7 +69,8 @@ export class EventPlayerService {
           notification_type: "leave_event",
           isRead: 0, // unread - 0, read - 1,
           eventId: eventId,
-          ownerId: eventData.owner
+          ownerId: eventData.owner,
+          actionTaken: 0
         };
         await this.rethinkService.saveDB('notifications', notificationObj);
 
@@ -138,7 +140,8 @@ export class EventPlayerService {
               notification_type: "add_player_event",
               isRead: 0, // unread - 0, read - 1,
               eventId: addPlayerEventInput.eventId,
-              ownerId: addPlayerEventInput.playerId
+              ownerId: addPlayerEventInput.playerId,
+              actionTaken: 0
             };
             await this.rethinkService.saveDB('notifications', notificationObj);
   
@@ -163,7 +166,8 @@ export class EventPlayerService {
             notification_type: "remove_player_event",
             isRead: 0, // unread - 0, read - 1,
             eventId: addPlayerEventInput.eventId,
-            ownerId: addPlayerEventInput.playerId
+            ownerId: addPlayerEventInput.playerId,
+            actionTaken: 0
           };
           await this.rethinkService.saveDB('notifications', notificationObj);
           return { message: "Player removed successfully from event." }
@@ -192,7 +196,8 @@ export class EventPlayerService {
                 notification_type: "invite_event",
                 isRead: 0, // unread - 0, read - 1,
                 eventId: inviteUninvitePlayersInput.eventId,
-                ownerId: user.userId
+                ownerId: user.userId,
+                actionTaken: 0
               };
               await this.rethinkService.saveDB('notifications', notificationObj);
             }
@@ -229,15 +234,23 @@ export class EventPlayerService {
               'eventPlayers',
               eventPlayerObj,
             );
-             // TODO::  Send notification to owner of the event
-              
+            
+            // Update action taken of the notification obj
+            const where = {
+              notification_type: 'invite_event',
+              ownerId: userId,
+              eventId: acceptDeclineInvitationInput.eventId
+            };
+            await this.rethinkService.updateWithFilter('notifications', where, { actionTaken: 1 });
+            
              if (inserted) {
               const notificationObj = {
                 userId,
                 notification_type: "accept_invitation",
                 isRead: 0, // unread - 0, read - 1,
                 eventId: acceptDeclineInvitationInput.eventId,
-                ownerId: eventData.owner
+                ownerId: eventData.owner,
+                actionTaken: 0
               };
               await this.rethinkService.saveDB('notifications', notificationObj);
             } else {
@@ -247,13 +260,21 @@ export class EventPlayerService {
              // delete notification object
              await this.rethinkService.removeDataWithFilter('notifications', { ownerId: userId, eventId: acceptDeclineInvitationInput.eventId, notification_type: "invite_event" });
              
-             // TODO::  Send notification to owner of the event
+              // Update action taken of the notification obj
+              const where = {
+                notification_type: 'invite_event',
+                ownerId: userId,
+                eventId: acceptDeclineInvitationInput.eventId
+              };
+              await this.rethinkService.updateWithFilter('notifications', where, { actionTaken: 1 });
+
              const notificationObj = {
               userId,
               notification_type: "decline_invitation",
               isRead: 0, // unread - 0, read - 1,
               eventId: acceptDeclineInvitationInput.eventId,
-              ownerId: eventData.owner
+              ownerId: eventData.owner,
+              actionTaken: 0
             };
             await this.rethinkService.saveDB('notifications', notificationObj);
            }

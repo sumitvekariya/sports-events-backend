@@ -31,7 +31,7 @@ export class EventService {
       }
     }
     
-    async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any): Promise<{ result: EventType, totalCount: number}> {
+    async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any, userId?): Promise<{ result: EventType, totalCount: number}> {
       let result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
       const totalCount = await this.rethinkService.getTotalCount('events', filter);
 
@@ -40,6 +40,13 @@ export class EventService {
         result = result.filter((event) => {
           return event.startDate >= betweenRange.start && event.endDate && event.endDate <= betweenRange.end
         })
+      }
+
+      // Get events in which user is involved
+      // TODO :: implement pagination using slice as we are merging two different array
+      if (userId) {
+        let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: userId });
+        result = [...result, ...enrolledEvents];
       }
       return { result, totalCount };
     }

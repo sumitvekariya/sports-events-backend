@@ -127,6 +127,9 @@ export class NotificationType {
   isRead: number;
 
   @Field({ nullable: true } )
+  actionTaken: number;
+
+  @Field({ nullable: true } )
   notification_type: string
 
   @Field({ nullable: true } )
@@ -137,4 +140,22 @@ export class NotificationType {
 
   @Field({ nullable: true } )
   eventId: string
+}
+
+@ObjectType()
+export class EventPlayerChangeOutput {
+  @Field({ nullable: true })
+  type: string;
+
+  @Field({ nullable: true })
+  user: UserType;
+}
+
+@ObjectType()
+export class NotificationChangeOutput {
+  @Field({ nullable: true })
+  type: string;
+
+  @Field({ nullable: true })
+  notification: NotificationType;
 }

@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserService } from './user.service';
-import { NotificationType, UserType } from './user.type';
+import { NotificationChangeOutput, NotificationType, UserType } from './user.type';
 import { AuthLoginInput } from './dto/auth-login.input';
 import { UserTokenType } from './user-token.type';
 import { UseGuards } from '@nestjs/common';
@@ -88,7 +88,7 @@ export class UserResolver {
     name: 'userChanges',
   })
   userChanges() {
-    return this.userService.subscribe('userChanges');
+    return this.userService.subscribe('userChanges', 'users');
   }
 
   @UseGuards(GqlAuthGuard)
@@ -180,10 +180,10 @@ export class UserResolver {
     return this.userService.getFollowers(userId);
   }
 
-  // @Subscription(() => NotificationType, {
-  //   name: 'eventPlayerChanges',
-  // })
-  // eventPlayerChanges() {
-  //   return this.eventPlayerService.subscribe('eventPlayerChanges');
-  // }
+  @Subscription(() => NotificationChangeOutput, {
+    name: 'notificationChanges',
+  })
+  notificationChanges() {
+    return this.userService.subscribe('notificationChanges', 'notifications');
+  }
 }

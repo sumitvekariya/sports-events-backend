@@ -44,6 +44,12 @@ export class EventType {
     @Field()
     status: string;
 
+    @Field({ nullable: true  })
+    lat: string;
+
+    @Field({ nullable: true })
+    long: string;
+
     @Field()
     type: string; // public or private
 
