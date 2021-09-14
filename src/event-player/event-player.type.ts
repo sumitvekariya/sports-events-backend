@@ -17,6 +17,9 @@ export class JoinEventType {
   @Field({ nullable: true })
   message?: string;
 
+  @Field({ nullable: true })
+  photoUrl?: string;
+
   @Field(() => [String], { nullable: true })
   positions: [string];
 }
@@ -61,6 +64,9 @@ export class EventPlayerList {
 
   @Field({ nullable: true })
   nickName?: string;
+
+  @Field({ nullable: true })
+  photoUrl?: string;
 
   @Field(() => [String], { nullable: true })
   positions: [string];
