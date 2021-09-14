@@ -117,7 +117,7 @@ export class EventResolver {
         @CtxUser() user: UserType,
         @Args('GetEventDetailInput') GetEventDetailInput: GetEventDetailInput
     ) {
-        const result = await this.eventService.getEventDetail(GetEventDetailInput.id);
+        const result = await this.eventService.getEventDetail(user.id, GetEventDetailInput.id);
         return result
     }
 

@@ -1,6 +1,7 @@
 import { Query } from '@nestjs/common';
 import { ObjectType, Field, Int, EnumOptions } from '@nestjs/graphql';
 import { IsOptional } from 'class-validator';
+import User from 'src/rethink-db/models/user.model';
 import { UserType } from 'src/user/user.type';
 
 @ObjectType('Event')
@@ -55,6 +56,12 @@ export class EventType {
 
     @Field()
     isIndoor: number; // indoor = 1, outdoor = 0
+    
+    @Field(() => [UserType], { nullable: true })
+    players: [User]
+
+    @Field(() => [UserType], { nullable: true })
+    totalUserList: [User]
 }
 
 @ObjectType()

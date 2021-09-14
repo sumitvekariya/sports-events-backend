@@ -85,6 +85,10 @@ export class UserType {
   @Field({ nullable: true })
   @IsOptional()
   friendId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  eventId?: string;
 }
 
 
@@ -158,4 +162,22 @@ export class NotificationChangeOutput {
 
   @Field({ nullable: true })
   notification: NotificationType;
+}
+
+@ObjectType()
+export class UserProfileType {
+  @Field({ nullable: true })
+  userProfileData: UserType;
+
+  @Field(() => [UserType], { nullable: true })
+  friends: [UserType];
+
+  @Field(() => [UserType], { nullable: true })
+  followers: [UserType];
+
+  @Field({ nullable: true })
+  totalEvent: number
+
+  @Field({ nullable: true })
+  notificationCount: number
 }

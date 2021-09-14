@@ -33,7 +33,7 @@ export class EventService {
     
     async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any, userId?): Promise<{ result: EventType, totalCount: number}> {
       let result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
-      const totalCount = await this.rethinkService.getTotalCount('events', filter);
+      let totalCount = await this.rethinkService.getTotalCount('events', filter);
 
       // TODO:: query is not working that's why. filter based on between ragne
       if (betweenRange && betweenRange.start && betweenRange.end) {
@@ -47,6 +47,7 @@ export class EventService {
       if (userId) {
         let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: userId });
         result = [...result, ...enrolledEvents];
+        totalCount += enrolledEvents.length;
       }
       return { result, totalCount };
     }
@@ -79,8 +80,34 @@ export class EventService {
       }
     }
 
-    async getEventDetail(id:string) {
+    async getEventDetail(userId: string, id:string) {
+      // get players list
+      const players = await this.rethinkService.getPlayerList({ eventId: id });
+      
+      // Event Detail
       const result = await this.rethinkService.getByID('events', id);
+
+      // Get total associated user's list
+      // get my follower List
+      const myFollowersList = await this.rethinkService.getUserList('followers', { userId }, 'followerId');
+
+      // get follower List whom I follow
+      const usersWhomIFollow = await this.rethinkService.getUserList('followers', { followerId:  userId }, 'userId');
+
+      // get My friend list
+      const myFriendList = await this.rethinkService.getUserList('friends', { userId: userId, status: 'accepted' }, 'friendId');
+
+      let totalUserList = [...myFollowersList, ...usersWhomIFollow, ...myFriendList];
+      totalUserList = totalUserList.reduce((acc, data) => {
+        const found = acc.findIndex(obj => obj.id === data.id);
+        if (found === -1) {
+          acc.push(data);
+        }
+        return acc
+      }, []);
+
+      result['players'] = players;
+      result['totalUserList'] = totalUserList;
       return result;
     }
 

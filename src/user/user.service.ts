@@ -126,9 +126,32 @@ export class UserService {
     }
   }
 
-  async getUserProfile(id: string) {
+  async getUserProfile(loggedInUserId: string, id: string) {
+    const response = {};
+
     const result = await this.rethinkService.getByID('users', id);
-    return result;
+
+    // get followers
+    const followersList = await this.rethinkService.getUserList('followers', { followerId: loggedInUserId }, 'userId');
+    response['followers'] = followersList;
+
+    // get friends
+    const friendList = await this.rethinkService.getUserList('friends', { userId: loggedInUserId }, 'friendId');
+    response['friends'] = friendList;
+
+    // get event count
+    let totalCount = await this.rethinkService.getTotalCount('events', { owner: id });
+    // get event in which use is enrolled
+    let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: id });
+    totalCount += enrolledEvents.length;
+    response['totalEvent'] = totalCount;
+
+    // get notification count
+    const notificationCount = await this.rethinkService.getNotificationList('notifications', { ownerId: id });
+    response['notificationCount'] = notificationCount.length;
+
+    response['userProfileData'] = result;
+    return response;
   }
 
   async followUser(followerId: string, followUserInput: FollowUnfollowInput) {

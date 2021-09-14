@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args, Query, Subscription } from '@nestjs/graphql';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UserService } from './user.service';
-import { NotificationChangeOutput, NotificationType, UserType } from './user.type';
+import { NotificationChangeOutput, NotificationType, UserProfileType, UserType } from './user.type';
 import { AuthLoginInput } from './dto/auth-login.input';
 import { UserTokenType } from './user-token.type';
 import { UseGuards } from '@nestjs/common';
@@ -62,9 +62,12 @@ export class UserResolver {
   }
 
   @UseGuards(GqlAuthGuard)
-  @Query(() => UserType)
-  getUserProfile(@Args('id') id: string) {
-    return this.userService.getUserProfile(id);
+  @Query(() => UserProfileType)
+  getUserProfile(
+    @CtxUser() user: UserType,
+    @Args('id') id: string
+  ) {
+    return this.userService.getUserProfile(user.id, id);
   }
 
   @UseGuards(GqlAuthGuard)
