@@ -273,11 +273,20 @@ export class UserService {
 
   }
 
-  async getFriends(userId: String) {
+  async getFriends(userId: String, eventId: String) {
+    const response = {};
     // TODO:: Add status filter while fetching friends
     const friendList = await this.rethinkService.getUserList('friends', { userId: userId }, 'friendId');
+
+    
     if (friendList && friendList.length) {
-      return friendList;
+      if (eventId) {
+        // Get enrolled friends list
+        const data = await this.rethinkService.getUsersEnrolledInEvent('friends', { userId }, { eventId, status: true }, 'friendId');
+        response['enrolledUsers'] = data;
+      }
+      response['friends'] = friendList;
+      return response;
     } else {
       return []
     }

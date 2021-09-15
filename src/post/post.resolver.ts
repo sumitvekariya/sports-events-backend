@@ -32,7 +32,7 @@ export class PostResolver {
 
   @Mutation(() => PostType)
   createPost(
-    @CtxUser() user: UserType,
+    @CtxUser() user: any,
     @Args('createPostInput') createPostInput: CreatePostInput,
   ) {
     if (!user) {
