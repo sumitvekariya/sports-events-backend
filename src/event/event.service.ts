@@ -49,6 +49,12 @@ export class EventService {
         result = [...result, ...enrolledEvents];
         totalCount += enrolledEvents.length;
       }
+      
+      // get joined user count for each event
+      for (let event of result) {
+        let playerCount = await this.rethinkService.getTotalCount('eventPlayers', { eventId: event.id });
+        event['joinedPlayer'] = playerCount
+      }
       return { result, totalCount };
     }
 
@@ -96,6 +102,9 @@ export class EventService {
 
       // get My friend list
       const myFriendList = await this.rethinkService.getUserList('friends', { userId: userId, status: 'accepted' }, 'friendId');
+
+      let playerCount = await this.rethinkService.getTotalCount('eventPlayers', { eventId: id });
+      result['joinedPlayer'] = playerCount
 
       let totalUserList = [...myFollowersList, ...usersWhomIFollow, ...myFriendList];
       totalUserList = totalUserList.reduce((acc, data) => {

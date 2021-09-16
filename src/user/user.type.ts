@@ -155,6 +155,9 @@ export class EventPlayerChangeOutput {
   type: string;
 
   @Field({ nullable: true })
+  eventId: string;
+
+  @Field({ nullable: true })
   user: UserType;
 }
 

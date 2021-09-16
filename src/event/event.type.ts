@@ -62,6 +62,9 @@ export class EventType {
 
     @Field(() => [UserType], { nullable: true })
     totalUserList: [User]
+
+    @Field({ nullable: true })
+    joinedPlayer: number;
 }
 
 @ObjectType()

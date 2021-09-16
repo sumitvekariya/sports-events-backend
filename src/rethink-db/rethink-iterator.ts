@@ -23,14 +23,14 @@ export class RethinkIterator {
         .get(val.new_val.playerId)
         .run(this.connection);
         
-        return { value: { [this.actionName]: { type: 'add_player', user: data } }, done: false };
+        return { value: { [this.actionName]: { type: 'add_player', eventId: val?.new_val?.eventId, user: data } }, done: false };
       } else {
         if (val?.old_val?.playerId) {
           const data = await this.rethink.table('users')
             .get(val.old_val.playerId)
             .run(this.connection);
 
-            return { value: { [this.actionName]: { type: 'remove_player', user: data } }, done: false };
+            return { value: { [this.actionName]: { type: 'remove_player', eventId: val?.old_val?.eventId, user: data } }, done: false };
         }
       }
     }
