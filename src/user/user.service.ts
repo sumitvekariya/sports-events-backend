@@ -82,6 +82,7 @@ export class UserService {
     const user = {
       ...createUserInput,
       id: uuid,
+      isCustomUser: 0
     };
     const { inserted, changes } = await this.rethinkService.saveDB(
       'users',

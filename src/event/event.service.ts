@@ -115,6 +115,14 @@ export class EventService {
         return acc
       }, []);
 
+      for (let p of players) {
+        if (p.addedBy) {
+          const existingUser = await this.rethinkService.getDataWithFilter('users', { id: p.addedBy });
+          if (existingUser?.length) {
+            p.addedByUser = existingUser[0].nickName;
+          }
+        }
+      }
       result['players'] = players;
       result['totalUserList'] = totalUserList;
       return result;

@@ -23,6 +23,14 @@ export class RethinkIterator {
         .get(val.new_val.playerId)
         .run(this.connection);
         
+        const addedBy = await this.rethink.table('users')
+        .get(val.new_val.addedBy)
+        .run(this.connection);
+
+        if (addedBy) {
+          data.addedByUser = addedBy.nickName;
+          data.addedBy = val.new_val.addedBy;
+        }
         return { value: { [this.actionName]: { type: 'add_player', eventId: val?.new_val?.eventId, user: data } }, done: false };
       } else {
         if (val?.old_val?.playerId) {

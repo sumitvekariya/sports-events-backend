@@ -58,10 +58,10 @@ export class EventType {
     isIndoor: number; // indoor = 1, outdoor = 0
     
     @Field(() => [UserType], { nullable: true })
-    players: [User]
+    players: [UserType]
 
     @Field(() => [UserType], { nullable: true })
-    totalUserList: [User]
+    totalUserList: [UserType]
 
     @Field({ nullable: true })
     joinedPlayer: number;

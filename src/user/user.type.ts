@@ -92,6 +92,18 @@ export class UserType {
   
   @Field(() => [UserType], { nullable: true })
   enrolledUsers: [UserType];
+
+  @Field({ nullable: true })
+  @IsOptional()
+  addedByUser: string
+
+  @Field({ nullable: true })
+  @IsOptional()
+  addedBy: string
+
+  @Field({ nullable: true })
+  @IsOptional()
+  isCustomUser: number
 }
 
 

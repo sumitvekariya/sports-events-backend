@@ -1,5 +1,5 @@
 import { Field, InputType } from "@nestjs/graphql";
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 @InputType()
 export class JoinEventInput {
@@ -30,7 +30,7 @@ export class AddPlayerEventInput {
   @Field()
   eventId: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Field()
   playerId: string;
@@ -39,6 +39,11 @@ export class AddPlayerEventInput {
   @IsNumber()
   @Field()
   isAdd: number;
+
+  @IsOptional()
+  @IsString()
+  @Field()
+  userName: string;
 }
 
 @InputType()

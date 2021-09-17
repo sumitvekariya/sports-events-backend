@@ -25,7 +25,8 @@ export class EventPlayerService {
           ...JoinEventInput,
           id: uuid,
           playerId: userId,
-          status: true
+          status: true,
+          addedBy: userId
         };
     
         const { inserted, changes } = await this.rethinkService.saveDB(
@@ -115,6 +116,34 @@ export class EventPlayerService {
     // get event Detail
     const eventData = await this.rethinkService.getByID('events', addPlayerEventInput.eventId);
     
+    // if user name comes then create user in db and assign it to player
+    if (addPlayerEventInput.userName) {
+      // check user exists with the same name
+      const firstName = addPlayerEventInput.userName.split(' ')[0] || "";
+      const lastName = addPlayerEventInput.userName.split(' ')[1] || "";
+
+      const existingUser = await this.rethinkService.getDataWithFilter('users', { firstName, lastName });
+
+      if (existingUser?.length) {
+        addPlayerEventInput.playerId = existingUser[0].id;
+      } else {
+        // save user object
+        const userObj = {
+          id: await this.rethinkService.generateUID(),
+          firstName,
+          lastName,
+          nickName: addPlayerEventInput.userName.replace(' ', '') || "",
+          role: "",
+          isCustomUser: 1,
+          positions: []
+        }
+        const { inserted, changes } = await this.rethinkService.saveDB('users', userObj);
+        if (inserted) {
+          addPlayerEventInput.playerId = changes[0].new_val.id;
+        }
+      }
+    }
+
     const userObj = await this.rethinkService.getByID('users', addPlayerEventInput.playerId);
     if (addPlayerEventInput.isAdd) {
       // fetch positions
@@ -126,7 +155,8 @@ export class EventPlayerService {
             ...addPlayerEventInput,
             id: uuid,
             playerId: addPlayerEventInput.playerId,
-            status: true
+            status: true,
+            addedBy: userId
           };
       
           const { inserted, changes } = await this.rethinkService.saveDB(
@@ -227,7 +257,8 @@ export class EventPlayerService {
               id: uuid,
               playerId: userId,
               eventId: acceptDeclineInvitationInput.eventId,
-              status: true
+              status: true,
+              addedBy: userId
             };
 
             const { inserted, changes } = await this.rethinkService.saveDB(
