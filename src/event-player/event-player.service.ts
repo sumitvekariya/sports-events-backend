@@ -122,7 +122,7 @@ export class EventPlayerService {
       const firstName = addPlayerEventInput.userName.split(' ')[0] || "";
       const lastName = addPlayerEventInput.userName.split(' ')[1] || "";
 
-      const existingUser = await this.rethinkService.getDataWithFilter('users', { firstName, lastName });
+      const existingUser = await this.rethinkService.getDataWithFilter('users', { firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() });
 
       if (existingUser?.length) {
         addPlayerEventInput.playerId = existingUser[0].id;

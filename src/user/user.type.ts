@@ -104,6 +104,9 @@ export class UserType {
   @Field({ nullable: true })
   @IsOptional()
   isCustomUser: number
+
+  @Field({ nullable: true } )
+  bio: string
 }
 
 

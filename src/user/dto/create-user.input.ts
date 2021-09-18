@@ -20,4 +20,7 @@ export class CreateUserInput {
   @Field({ nullable: true })
   @IsEmail()
   email?: string;
+
+  @Field(() => [String], { nullable: true })
+  positions?: [string];
 }

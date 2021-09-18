@@ -82,7 +82,8 @@ export class UserService {
     const user = {
       ...createUserInput,
       id: uuid,
-      isCustomUser: 0
+      isCustomUser: 0,
+      positions: []
     };
     const { inserted, changes } = await this.rethinkService.saveDB(
       'users',
@@ -95,18 +96,25 @@ export class UserService {
     }
   }
 
-  async update(updateUserInput: UpdateUserInput) {
-    const { id, ...rest } = updateUserInput;
-    if (!rest.firstName) {
-      delete rest.firstName;
+  async update(userId: string, updateUserInput: UpdateUserInput) {
+    const keys = Object.keys(updateUserInput);
+    const objToUpdate = {};
+
+    for (let key of keys) {
+      if (updateUserInput[key]) {
+        objToUpdate[key] = updateUserInput[key]
+      }
+
+      if (key === 'name') {
+        objToUpdate['firstName'] = updateUserInput[key].split(' ')[0] || "";
+        objToUpdate['lastName'] = updateUserInput[key].split(' ')[1] || ""
+      }
     }
-    if (!rest.lastName) {
-      delete rest.lastName;
-    }
+
     const { replaced, changes } = await this.rethinkService.updateDB(
       'users',
-      id,
-      rest,
+      userId,
+      objToUpdate,
     );
     if (replaced) {
       return changes[0].new_val;
@@ -447,5 +455,31 @@ export class UserService {
   async markReadAllNotifications(userId: string) {
     await this.rethinkService.updateAllRecords('notifications', { isRead: 1 });
     return 'All the nofitications are read.'
+  }
+
+  async updateProfile(userId: string, updateUserInput: UpdateUserInput) {
+    const keys = Object.keys(updateUserInput);
+    const objToUpdate = {};
+
+    for (let key of keys) {
+      if (updateUserInput[key]) {
+        objToUpdate[key] = updateUserInput[key]
+      }
+    }
+
+    console.log(objToUpdate);
+    
+    const { replaced, changes } = await this.rethinkService.updateDB(
+      'users',
+      userId,
+      {bio: 'test'},
+    );
+
+    if (replaced) {
+      return changes[0].new_val;
+    } else {
+      throw Error('Error while updating a user');
+    }
+
   }
 }

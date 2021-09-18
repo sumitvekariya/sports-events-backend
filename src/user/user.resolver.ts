@@ -51,8 +51,11 @@ export class UserResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => UserType)
-  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.update(updateUserInput);
+  updateUser(
+    @CtxUser() user: UserType,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput
+  ) {
+    return this.userService.update(user.id, updateUserInput);
   }
 
   @UseGuards(GqlAuthGuard)
@@ -189,5 +192,14 @@ export class UserResolver {
   })
   notificationChanges() {
     return this.userService.subscribe('notificationChanges', 'notifications');
+  }
+
+  @UseGuards(GqlAuthGuard)
+  @Mutation(() => UserType)
+  updateProfile(
+    @CtxUser() user: UserType,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput
+  ) {
+    return this.userService.updateProfile(user.id, updateUserInput);
   }
 }

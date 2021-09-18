@@ -72,11 +72,12 @@ export class StartScene {
         this.logger.log('New user has been created');
         const now = new Date();
         
-        const newUser: CreateUserInput = {
+        const newUser: any = {
           telegramId: Number(tgId),
           nickName: ctx.from.username,
           firstName: ctx.from.first_name || '',
-          lastName: ctx.from.last_name || ''
+          lastName: ctx.from.last_name || '',
+          positions: []
         };
         
         const { inserted, changes } = await this.rethinkService.saveDB('users', newUser);
