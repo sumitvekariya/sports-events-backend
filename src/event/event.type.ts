@@ -65,6 +65,9 @@ export class EventType {
 
     @Field({ nullable: true })
     joinedPlayer: number;
+
+    @Field({ nullable: true })
+    ownerName: string;
 }
 
 @ObjectType()

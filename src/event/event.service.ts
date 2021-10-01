@@ -106,6 +106,10 @@ export class EventService {
       let playerCount = await this.rethinkService.getTotalCount('eventPlayers', { eventId: id });
       result['joinedPlayer'] = playerCount
 
+      // get owner Data
+      const ownerData = await this.rethinkService.getByID('users', result.owner);
+      result['ownerName'] = ownerData.nickName;
+
       let totalUserList = [...myFollowersList, ...usersWhomIFollow, ...myFriendList];
       totalUserList = totalUserList.reduce((acc, data) => {
         const found = acc.findIndex(obj => obj.id === data.id);

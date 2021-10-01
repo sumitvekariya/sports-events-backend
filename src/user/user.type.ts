@@ -1,6 +1,18 @@
-import { ObjectType, Field } from '@nestjs/graphql';
-import { IsEnum, IsOptional } from 'class-validator';
-import { EventType } from 'src/event/event.type';
+import { ObjectType, Field, InputType } from '@nestjs/graphql';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+
+
+@ObjectType()
+export class UserLinks {
+  @Field({ nullable: true })
+  @IsString()
+  title: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  url: string;
+}
+
 
 @ObjectType('User')
 export class UserType {
@@ -107,6 +119,28 @@ export class UserType {
 
   @Field({ nullable: true } )
   bio: string
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  hobbies?: [string];
+
+  @Field({ nullable: true } )
+  facebookUrl: string
+
+  @Field({ nullable: true } )
+  instagramUrl: string
+
+  @Field({ nullable: true } )
+  twitterUrl: string
+
+  @Field({ nullable: true } )
+  phoneNumber: string
+
+  @Field(() => [UserLinks], { nullable: true })
+  links?: UserLinks
+
+  @Field({ nullable: true } )
+  city: string
 }
 
 
