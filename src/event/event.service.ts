@@ -38,7 +38,7 @@ export class EventService {
       // TODO:: query is not working that's why. filter based on between ragne
       if (betweenRange && betweenRange.start && betweenRange.end) {
         result = result.filter((event) => {
-          return event.startDate >= betweenRange.start && event.endDate && event.endDate <= betweenRange.end
+          return event.startDate >= betweenRange.start && event.endDate <= betweenRange.end
         })
       }
 

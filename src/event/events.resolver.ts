@@ -79,9 +79,9 @@ export class EventResolver {
         if (PaginationInputType.city) {
             filter['city'] = PaginationInputType.city;
         }
-        if (PaginationInputType.type) {
-            filter['type'] = PaginationInputType.type;
-        }
+        // if (PaginationInputType.type) {
+        //     filter['type'] = PaginationInputType.type;
+        // }
         if (PaginationInputType.sportType) {
             filter['sportType'] = PaginationInputType.sportType;
         }
