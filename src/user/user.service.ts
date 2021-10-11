@@ -426,13 +426,6 @@ export class UserService {
       if (replaced) {
         // update action taken obj
 
-        const where = {
-          notification_type: 'add_friend',
-          ownerId: userId,
-          userId: acceptDeclineRequestInput.userId
-        };
-        await this.rethinkService.updateWithFilter('notifications', where, { actionTaken: 1 });
-
         const notificationObj = {
           userId: userId,
           notification_type: +acceptDeclineRequestInput?.isAccept ? "friend_request_accept" : "friend_request_decline",
@@ -440,9 +433,17 @@ export class UserService {
           eventId: "",
           ownerId: acceptDeclineRequestInput.userId,
           actionTaken: 0
-      };
+        };
 
-      await this.rethinkService.saveDB('notifications', notificationObj);
+        await this.rethinkService.saveDB('notifications', notificationObj);
+
+        const where = {
+          notification_type: 'add_friend',
+          ownerId: userId,
+          userId: acceptDeclineRequestInput.userId
+        };
+        await this.rethinkService.updateWithFilter('notifications', where, { actionTaken: 1 });
+        
         return `Friend request ${status}`;
       } else {
         throw Error('Error while updating a user');
@@ -467,8 +468,6 @@ export class UserService {
       }
     }
 
-    console.log(objToUpdate);
-    
     const { replaced, changes } = await this.rethinkService.updateDB(
       'users',
       userId,

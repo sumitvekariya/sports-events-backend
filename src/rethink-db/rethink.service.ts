@@ -216,7 +216,7 @@ export class RethinkService {
                 return eventRow('playerId').eq(userRow('id'))
             })
             .withFields(
-                {"left": { "id": true, "playerId": true, "eventId": true, "status": true, "addedBy": true }},{"right": { "firstName": true, "lastName": true, "positions": true, "isCustomUser": true }}
+                {"left": { "id": true, "playerId": true, "eventId": true, "status": true, "addedBy": true }},{"right": { "firstName": true, "lastName": true, "positions": true, "isCustomUser": true, "photoUrl": true }}
             )
             .zip()
             .run(this.connection)
@@ -294,6 +294,31 @@ export class RethinkService {
             .outerJoin(r.table('events'), function(notRow, eventRow) {
                 return notRow('eventId').eq(eventRow('id'))
             })
+            .withFields({
+                "left": {
+                  "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true, "firstName": true, "lastName": true
+                }
+              },{
+                "right": {
+                  "city": true,
+                  "createdAt": true,
+                  "description": true,
+                  "endTime": true,
+                  "fieldType": true,
+                  "isIndoor": true,
+                  "lat": true,
+                  "long": true,
+                  "owner": true,
+                  "playerLimit": true,
+                  "sportType": true,
+                  "startDate": true,
+                  "startTime": true,
+                  "status": true,
+                  "teamSize": true,
+                  "type": true,
+                  "updatedAt": true
+                }
+              })
             .zip()
             .run(this.connection)
             .then(cursor => {

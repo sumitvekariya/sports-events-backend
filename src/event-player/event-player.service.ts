@@ -135,7 +135,8 @@ export class EventPlayerService {
           nickName: addPlayerEventInput.userName.replace(' ', '') || "",
           role: "",
           isCustomUser: 1,
-          positions: []
+          positions: [],
+          photoUrl: ""
         }
         const { inserted, changes } = await this.rethinkService.saveDB('users', userObj);
         if (inserted) {
@@ -200,6 +201,10 @@ export class EventPlayerService {
             actionTaken: 0
           };
           await this.rethinkService.saveDB('notifications', notificationObj);
+
+          // delete old intiviation
+          await this.rethinkService.removeDataWithFilter('notifications', { ownerId: addPlayerEventInput.playerId, userId, eventId: addPlayerEventInput.eventId, notification_type: "invite_event" });
+
           return { message: "Player removed successfully from event." }
         }
       } else {
