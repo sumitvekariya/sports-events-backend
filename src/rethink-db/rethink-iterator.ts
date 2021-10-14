@@ -56,32 +56,33 @@ export class RethinkIterator {
             .outerJoin(this.rethink.table('events'), function(notRow, eventRow) {
                 return notRow('eventId').eq(eventRow('id'))
             })
-            .withFields({
-              "left": {
-                "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true, "firstName": true, "lastName": true
-              }
-            },{
-              "right": {
-                "city": true,
-                "createdAt": true,
-                "description": true,
-                "endTime": true,
-                "fieldType": true,
-                "isIndoor": true,
-                "lat": true,
-                "long": true,
-                "owner": true,
-                "playerLimit": true,
-                "sportType": true,
-                "startDate": true,
-                "startTime": true,
-                "status": true,
-                "teamSize": true,
-                "type": true,
-                "updatedAt": true
-              }
-            })
             .zip()
+            // .withFields({
+            //   "left": {
+            //     "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true, "firstName": true, "lastName": true
+            //   }
+            // },{
+            //   "right": {
+            //     "city": true,
+            //     "createdAt": true,
+            //     "description": true,
+            //     "endTime": true,
+            //     "fieldType": true,
+            //     "isIndoor": true,
+            //     "lat": true,
+            //     "long": true,
+            //     "owner": true,
+            //     "playerLimit": true,
+            //     "sportType": true,
+            //     "startDate": true,
+            //     "startTime": true,
+            //     "status": true,
+            //     "teamSize": true,
+            //     "type": true,
+            //     "updatedAt": true
+            //   }
+            // })
+            // .zip()
             .run(this.connection)
             .then(cursor => {
               cursor.toArray(function(err, res) {
