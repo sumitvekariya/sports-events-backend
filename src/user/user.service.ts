@@ -264,6 +264,7 @@ export class UserService {
     } else {
       if (existingFollower) {
         await this.rethinkService.removeDB('friends', existingFollower.id);
+        await this.rethinkService.removeDataWithFilter('friends', { userId: addRemoveFriendInput.userId, friendId: userId });
         // add notification object
         const notificationObj = {
           userId,
@@ -416,14 +417,32 @@ export class UserService {
   async approveDeclineRequest(userId: string, acceptDeclineRequestInput: AcceptDeclineRequestInput) {
     const [foundData] = await this.rethinkService.getDataWithFilter('friends', { friendId: userId  , userId: acceptDeclineRequestInput.userId });
 
-    const status = acceptDeclineRequestInput?.isAccept ? 'accepted' : 'declined'
+    const status = acceptDeclineRequestInput?.isAccept ? 'accepted' : 'declined';
+    let udpated = 0;
     if(foundData) {
-      const { replaced, changes } = await this.rethinkService.updateDB(
-        'friends',
-        foundData.id,
-        { status },
-      );
-      if (replaced) {
+      if (acceptDeclineRequestInput?.isAccept) {
+        const { replaced, changes } = await this.rethinkService.updateDB(
+          'friends',
+          foundData.id,
+          { status },
+        );
+        udpated = replaced;
+
+        const objToSave = {
+          friendId: acceptDeclineRequestInput.userId ,
+          userId,
+          status: "accepted"
+        }
+  
+        await this.rethinkService.saveDB('friends', objToSave);
+      } else {
+        const { replaced, changes } = await this.rethinkService.removeDataWithFilter('friends', { friendId: userId  , userId: acceptDeclineRequestInput.userId });
+        udpated = changes[0].old_val;
+
+        await this.rethinkService.removeDataWithFilter('friends', { friendId: acceptDeclineRequestInput.userId  , userId });
+      }
+
+      if (udpated) {
         // update action taken obj
 
         const notificationObj = {
