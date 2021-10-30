@@ -42,7 +42,7 @@ export class UserService {
       telegramId: authLoginInput.telegramId,
     });
     // Register user if new
-    if (!found.length) {
+    if (!found?.length) {
       found = await this.create(authLoginInput);
       this.logger.log('New user registered: ' + found.id);
     } else {
