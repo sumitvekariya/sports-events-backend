@@ -24,6 +24,8 @@ export class EventResolver {
         const limit = PaginationInputType.limit || 10;
         let filter = {};
         let betweenRange = {};
+        let followedBy = '';
+
         if (PaginationInputType.city) {
             filter['city'] = PaginationInputType.city;
         }
@@ -44,6 +46,10 @@ export class EventResolver {
         if (PaginationInputType.startTime) {
             filter['startTime'] = PaginationInputType.startTime;
         }
+
+        if (PaginationInputType.followedBy) {
+            followedBy = PaginationInputType.followedBy;
+        }
             // if (user && user.id) {
         //     filter['owner'] = user.id;
         // }
@@ -58,7 +64,7 @@ export class EventResolver {
             delete filter['startDate'];
         }
 
-        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange);
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange, null, followedBy);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -107,7 +113,7 @@ export class EventResolver {
             delete filter['startDate'];
         }
         
-        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange, user.id);
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, betweenRange, user.id, null);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 
@@ -171,7 +177,7 @@ export class EventResolver {
         let filter = {
             owner: getEventByUserInput.userId
         };
-        const data = await this.eventService.getAllWithCount(filter, skip, limit, null, getEventByUserInput.userId);
+        const data = await this.eventService.getAllWithCount(filter, skip, limit, null, getEventByUserInput.userId, null);
         return { totalCount: data['totalCount'], result: data['result'] }
     }
 }

@@ -31,10 +31,34 @@ export class EventService {
       }
     }
     
-    async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any, userId?): Promise<{ result: EventType, totalCount: number}> {
+    async getAllWithCount(filter: any, skip: number,limit: number, betweenRange: any, userId?, followedBy?): Promise<{ result: EventType, totalCount: number}> {
       let result = await this.rethinkService.getDataWithPagination('events', filter, skip, limit, betweenRange);
       let totalCount = await this.rethinkService.getTotalCount('events', filter);
 
+      // get eventids with followedby is enrolled from eventPlayer table
+      const keys = Object.keys(filter);
+      if (followedBy) {
+        const followedByEvents = await this.rethinkService.getDataWithFilter('eventPlayers', { playerId : followedBy });
+        // if (followedByEvents?.length) {
+          const eventsToPush = [];
+          for (let fe of followedByEvents) {
+            const foundEvent = result.find(r => r.id === fe?.eventId)
+            if (!foundEvent) {
+              // fetch Event detail
+              const eventDetails = await this.rethinkService.getDataWithFilter('events', { id: fe?.eventId });
+              eventsToPush.push(...eventDetails);
+              
+            } else if (keys.length === 1) {
+              eventsToPush.push(foundEvent);
+            }
+          }
+          if (keys.length === 1) {
+              result = [...eventsToPush];
+          } else {
+            result = [...result, ...eventsToPush]
+          }
+        // }
+      }
       // TODO:: query is not working that's why. filter based on between ragne
       if (betweenRange && betweenRange.start && betweenRange.end) {
         result = result.filter((event) => {
