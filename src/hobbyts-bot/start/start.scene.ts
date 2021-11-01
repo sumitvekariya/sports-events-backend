@@ -77,7 +77,8 @@ export class StartScene {
           nickName: ctx.from.username,
           firstName: ctx.from.first_name || '',
           lastName: ctx.from.last_name || '',
-          positions: []
+          positions: [],
+          photoUrl: ""
         };
         
         const { inserted, changes } = await this.rethinkService.saveDB('users', newUser);
