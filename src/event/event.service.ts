@@ -70,7 +70,13 @@ export class EventService {
       // TODO :: implement pagination using slice as we are merging two different array
       if (userId) {
         let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: userId });
-        result = [...result, ...enrolledEvents];
+        for (let event of enrolledEvents) {
+          const found = result.find(r => r.id === event.id);
+          if (!found) {
+            result.push(found);
+          }
+        }
+        // result = [...result, ...enrolledEvents];
         totalCount += enrolledEvents.length;
       }
       
