@@ -84,7 +84,6 @@ export class UserService {
       id: uuid,
       isCustomUser: 0,
       positions: [],
-      photoUrl: ""
     };
     const { inserted, changes } = await this.rethinkService.saveDB(
       'users',
