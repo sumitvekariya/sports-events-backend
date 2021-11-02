@@ -145,7 +145,7 @@ export class UserService {
     response['followers'] = followersList;
 
     // get friends
-    const friendList = await this.rethinkService.getUserList('friends', { userId: loggedInUserId }, 'friendId');
+    const friendList = await this.rethinkService.getUserList('friends', { userId: loggedInUserId, status: 'accepted' }, 'friendId');
     response['friends'] = friendList;
 
     // get event count
@@ -286,8 +286,7 @@ export class UserService {
   async getFriends(userId: String, eventId: String) {
     const response = {};
     // TODO:: Add status filter while fetching friends
-    const friendList = await this.rethinkService.getUserList('friends', { userId: userId }, 'friendId');
-
+    const friendList = await this.rethinkService.getUserList('friends', { userId: userId, status: 'accepted' }, 'friendId');
     
     if (friendList && friendList.length) {
       if (eventId) {
@@ -313,7 +312,7 @@ export class UserService {
 
   async getFriendsWithMe(userId: String) {
     // TODO:: Add status filter while fetching friends
-    const followersList = await this.rethinkService.getUserList('friends', { friendId: userId }, 'userId');
+    const followersList = await this.rethinkService.getUserList('friends', { friendId: userId, status: 'accepted' }, 'userId');
     if (followersList && followersList.length) {
       return followersList
     } else {

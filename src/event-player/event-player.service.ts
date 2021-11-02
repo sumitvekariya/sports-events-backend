@@ -121,8 +121,9 @@ export class EventPlayerService {
       // check user exists with the same name
       const firstName = addPlayerEventInput.userName.split(' ')[0] || "";
       const lastName = addPlayerEventInput.userName.split(' ')[1] || "";
+      const nickName = "";
 
-      const existingUser = await this.rethinkService.getDataWithFilter('users', { firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase() });
+      const existingUser = await this.rethinkService.getDataWithFilter('users', { firstName: firstName.toLowerCase(), lastName: lastName.toLowerCase(), nickName });
 
       if (existingUser?.length) {
         addPlayerEventInput.playerId = existingUser[0].id;
