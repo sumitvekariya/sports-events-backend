@@ -147,6 +147,20 @@ export class RethinkIterator {
             result.message = ``;
             break;
         }
+
+        // TODO:: get notification id 
+        let notificationObj;
+        await this.rethink
+            .table('notifications')
+            .filter({ id: val?.new_val?.id })
+            .run(this.connection)
+            .then(cursor => {
+              cursor.toArray(function(err, res) {
+                  if (err) throw err;
+                  notificationObj = res[0];
+              })
+            });
+            result.id = notificationObj.id
         return { value: { [this.actionName]: { type: 'add_notification', notification: result } }, done: false };
       }
     }

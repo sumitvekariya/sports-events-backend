@@ -71,19 +71,42 @@ export class EventService {
       if (userId) {
         let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: userId });
         for (let event of enrolledEvents) {
-          const found = result.find(r => r.id === event.id);
-          if (!found) {
-            result.push(found);
+          const found = result.findIndex(r => r.id === event.id);
+          if (found === -1) {
+            result.push(event);
+            totalCount += 1;
           }
         }
         // result = [...result, ...enrolledEvents];
-        totalCount += enrolledEvents.length;
+        // totalCount += enrolledEvents.length;
       }
       
+      // get followers event
+      const followers = await this.rethinkService.getDataWithFilter('followers', { followerId: userId });
+      if (followers?.length) {
+        const userIds = followers.map(f => f.userId);
+        if (userIds?.length) {
+          for (let uId of userIds) {
+            const events = await this.rethinkService.getDataWithFilter('events', { owner: uId });
+            if (events?.length) {
+              for (let e of events) {
+                const found = result.findIndex(r => r.id === e.id);
+                if (found === -1) {
+                  result.push(e);
+                  totalCount += 1;
+                }
+              }
+            }
+          }
+        }
+      }
+
       // get joined user count for each event
       for (let event of result) {
-        let playerCount = await this.rethinkService.getTotalCount('eventPlayers', { eventId: event.id });
-        event['joinedPlayer'] = playerCount
+        if (event) {
+          let playerCount = await this.rethinkService.getTotalCount('eventPlayers', { eventId: event.id });
+          event['joinedPlayer'] = playerCount
+        }
       }
       return { result, totalCount };
     }

@@ -149,12 +149,36 @@ export class UserService {
     response['friends'] = friendList;
 
     // get event count
-    let totalCount = await this.rethinkService.getTotalCount('events', { owner: id });
+    let myEvents = await this.rethinkService.getDataWithFilter('events', { owner: id });
+    // let totalCount = await this.rethinkService.getTotalCount('events', { owner: id });
+    let totalCount = myEvents.length;
+
     // get event in which use is enrolled
     let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: id });
+    myEvents = [...myEvents, ...enrolledEvents];
     totalCount += enrolledEvents.length;
-    response['totalEvent'] = totalCount;
 
+    // get event of followers
+    const followers = await this.rethinkService.getDataWithFilter('followers', { followerId: id });
+    if (followers?.length) {
+      const userIds = followers.map(f => f.userId);
+      if (userIds?.length) {
+        for (let uId of userIds) {
+          const events = await this.rethinkService.getDataWithFilter('events', { owner: uId });
+
+          if (events?.length) {
+            for (let e of events) {
+              const found = myEvents.findIndex(r => r.id === e.id);
+              if (found === -1) {
+                totalCount += 1;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    response['totalEvent'] = totalCount;
     // get notification count
     const notificationCount = await this.rethinkService.getNotificationList('notifications', { ownerId: id });
     response['notificationCount'] = notificationCount.length;
@@ -410,6 +434,17 @@ export class UserService {
         }
       }
     }
+
+    notifications.sort(function (x, y) {
+      if (new Date(x.createdAt) < new Date(y.createdAt)) {
+        return 1;
+      }
+      if (new Date(x.createdAt) > new Date(y.createdAt)) {
+        return -1;
+      }
+      return 0;
+    });
+
     return notifications;
   }
 

@@ -289,11 +289,12 @@ export class RethinkService {
             .filter(filter)
             .outerJoin(r.table("users"), (leftRow, userRow) => {
                 return leftRow("userId").eq(userRow('id'))
-            }).withFields({"left": { "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true }},{"right": { "firstName": true, "lastName": true }})
+            }).withFields({"left": { "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true, "createdAt": true }},{"right": { "firstName": true, "lastName": true }})
             .zip()
-            .outerJoin(r.table('events'), function(notRow, eventRow) {
-                return notRow('eventId').eq(eventRow('id'))
-            })
+            // .outerJoin(r.table('events'), function(notRow, eventRow) {
+            //     return notRow('eventId').eq(eventRow('id'))
+            // })
+            // .zip()
             // .withFields({
             //     "left": {
             //       "id": true, "userId": true, "isRead": true, "ownerId": true, "notification_type": true, "eventId": true, "actionTaken": true, "firstName": true, "lastName": true
@@ -319,7 +320,6 @@ export class RethinkService {
             //       "updatedAt": true
             //     }
             //   })
-            .zip()
             .run(this.connection)
             .then(cursor => {
                 cursor.toArray(function(err, res) {
@@ -330,6 +330,37 @@ export class RethinkService {
             .catch(err => {
                 this.logger.error(`Some error when getDataWithFilter`, err);
             });
+
+        // let notifications;
+        // await r
+        //     .table(tableName)
+        //     .filter(filter)
+        //     .run(this.connection)
+        //     .then(res => {
+        //         notifications = res;
+        //     })
+        result = [...result];
+        if (result?.length) {
+            for (let [index, rObj] of result.entries()) {
+                if (rObj.eventId) {
+                    let eventDetails;
+                    await r
+                        .table("events")
+                        .get(rObj.eventId)
+                        .run(this.connection)
+                        .then((res: any) => {
+                            if (res) {
+                                delete res.id;
+                                delete res.createdAt;
+                                delete res.updatedAt;
+                                eventDetails = res
+                            }
+                        })
+                    rObj = { ...rObj, ...eventDetails}
+                    result[index] = rObj;
+                }
+            }
+        }
 
         return result
     }
