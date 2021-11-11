@@ -119,7 +119,7 @@ export class UserService {
     if (replaced) {
       return changes[0].new_val;
     } else {
-      throw Error('Error while updating a user');
+      throw Error('Error while updating a user Profile');
     }
   }
 
@@ -152,11 +152,18 @@ export class UserService {
     let myEvents = await this.rethinkService.getDataWithFilter('events', { owner: id });
     // let totalCount = await this.rethinkService.getTotalCount('events', { owner: id });
     let totalCount = myEvents.length;
-
+    
     // get event in which use is enrolled
     let enrolledEvents = await this.rethinkService.getUserEnrolledEvents('eventPlayers', { playerId: id });
-    myEvents = [...myEvents, ...enrolledEvents];
-    totalCount += enrolledEvents.length;
+    for (let event of enrolledEvents) {
+      const found = myEvents.findIndex(r => r.id === event.id);
+      if (found === -1) {
+        myEvents.push(event);
+        totalCount += 1;
+      }
+    }
+    // myEvents = [...myEvents, ...enrolledEvents];
+    // totalCount += enrolledEvents.length;
 
     // get event of followers
     const followers = await this.rethinkService.getDataWithFilter('followers', { followerId: id });
@@ -179,6 +186,14 @@ export class UserService {
     }
 
     response['totalEvent'] = totalCount;
+
+    // check loggedin user is following the main user or not
+    const checkFollower = await this.rethinkService.getDataWithFilter('followers', { followerId: loggedInUserId, userId: id })
+    if (checkFollower?.length === 0 && loggedInUserId !== id) {
+      response['totalEvent'] = 0;
+    }
+    
+
     // get notification count
     const notificationCount = await this.rethinkService.getNotificationList('notifications', { ownerId: id });
     response['notificationCount'] = notificationCount.length;
@@ -499,7 +514,7 @@ export class UserService {
         
         return `Friend request ${status}`;
       } else {
-        throw Error('Error while updating a user');
+        throw Error('Error while updating a Friend Request');
       }
     } else {
       return 'First send friend request'
